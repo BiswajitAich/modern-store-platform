@@ -1,0 +1,36 @@
+
+/* ========== Price Section ========== */
+.priceSection {
+  padding: var(--spacing-md) 0;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+}
+
+.currentPrice {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.originalPrice {
+  font-size: var(--font-size-xl);
+  color: var(--text-secondary);
+  text-decoration: line-through;
+}
+
+.discount {
+  font-size: var(--font-size-base);
+  color: lime;
+  border-radius: var(--radius-md);
+  font-weight: bold;
+}
+
+.tax {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}

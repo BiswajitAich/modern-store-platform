@@ -1,0 +1,63 @@
+.variantSection {
+  padding: var(--spacing-md) 0;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.variantGrid {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.variantOption {
+  padding: var(--spacing-xs);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 50px;
+  max-width: 150px;
+  text-transform: capitalize;
+}
+
+.variantOption:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.variantOptionActive {
+  border-color: var(--color-primary);
+  box-shadow: inset var(--shadow-md);
+}
+
+.sku {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.optionGroup {
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  margin: var(--spacing-sm) 0;
+  text-transform: capitalize;
+  column-gap: var(--spacing-xs);
+}
+
+.optionValues {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}

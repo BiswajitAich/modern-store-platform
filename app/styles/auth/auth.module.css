@@ -1,0 +1,25 @@
+.container {
+  flex-direction: column;
+  min-height: 90vh;
+  display: flex;
+  background: var(--bg-secondary);
+  justify-content: space-evenly;
+  align-items: center;
+}
+.authToggle {
+  background-color: var(--color-gray);
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+}
+.authToggleButton {
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  background-color: var(--color-primary-light);
+  margin-left: 0.6rem;
+  font-weight: 600;
+  color: var(--color-dark);
+}
+.authToggleButton:hover {
+  background-color: var(--color-dark);
+  color: var(--color-primary-light);
+}

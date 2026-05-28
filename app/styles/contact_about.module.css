@@ -1,0 +1,69 @@
+.container {
+  background: var(--bg-tertiary);
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 3rem;
+  display: flex;
+}
+
+.card {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 720px;
+  padding: 2rem;
+  box-shadow: 0 0px 8px var(--bg-light);
+}
+
+.heading {
+  margin: 0 0 0.75rem;
+  font-size: 1.75rem;
+  color: var(--color-primary-light);
+}
+
+.text {
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
+  line-height: 1.6;
+}
+
+.linkButton {
+  color: var(--text-dark);
+  background-color: var(--color-primary-lighter);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+}
+.linkButton:hover {
+  background-color: var(--color-primary-light);
+}
+
+.WAbutton {
+  max-width: 600px;
+  background-color: green;
+  border-radius: var(--spacing-md) 8px 8px var(--spacing-md);
+  flex-direction: row;
+  margin: 1rem 0;
+  padding-right: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  gap: var(--spacing-sm);
+  max-height: 68px;
+  align-items: center;
+}
+.WAbutton:hover {
+  background-color: #25a418;
+}
+
+.email {
+  color: var(--color-white);
+  text-decoration: underline;
+  text-decoration-color: var(--color-primary-dark);
+}
+.email:hover {
+  text-decoration-style: double;
+}

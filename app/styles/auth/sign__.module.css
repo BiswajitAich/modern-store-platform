@@ -1,0 +1,166 @@
+.wrapper {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+}
+
+.form {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-tertiary);
+  padding: clamp(0rem, 4vw, var(--spacing-xl));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.legend {
+  font-size: var(--font-size-3xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.label {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: 0.25rem;
+}
+
+.input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  padding-right: 50px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--bg-tertiary);
+}
+
+.passwordBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.eyeButton {
+  position: absolute;
+  right: 4px;
+  width: 45px;
+  height: 45px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  filter: invert(1);
+  transition: opacity var(--transition-fast);
+}
+
+.eyeButton:hover {
+  opacity: 0.8;
+}
+
+.prevNextButton {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-dark);
+  color: var(--text-dark);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  border: none;
+  margin-top: var(--spacing-md);
+  cursor: pointer;
+  transition: background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.prevNextButton:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-2px);
+}
+.submitButton {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--text-dark);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-top: var(--spacing-md);
+  transition: background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.submitButton:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-2px);
+}
+
+.submitButton:active {
+  background: var(--color-primary-dark);
+  transform: translateY(0px);
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-md);
+}
+
+.otpButton {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-dark);
+  color: var(--text-dark);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  margin-top: var(--spacing-sm);
+  transition: background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.otpButton:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-2px);
+}
+
+.otpInput {
+  width: 100%;
+  height: 55px;
+  font-size: 1.4rem;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.otpInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--bg-tertiary);
+  transform: translateY(-2px);
+}

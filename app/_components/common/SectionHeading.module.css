@@ -1,0 +1,64 @@
+.wrapper {
+    width: 100%;
+    margin: var(--spacing-sm) 0;
+    padding: var(--spacing-sm) 0;
+    box-shadow: 0px 1px 8px var(--bg-tertiary);
+}
+
+/* TOP ROW */
+.headerRow {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    position: relative;
+}
+
+/* small futuristic glow dot */
+.glowDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+
+    background: var(--color-primary);
+    box-shadow:
+        0 0 8px rgba(2, 193, 240, 0.6),
+        0 0 20px rgba(2, 193, 240, 0.3);
+    flex-shrink: 0;
+}
+
+/* TITLE */
+.title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+
+    color: var(--text-primary);
+    text-transform: uppercase;
+
+    position: relative;
+}
+
+/* gradient line that feels like a UI divider */
+.line {
+    flex: 1;
+    height: 4px;
+
+    background: linear-gradient(90deg,
+            var(--color-primary),
+            transparent);
+
+    opacity: 0.6;
+    margin-left: var(--spacing-sm);
+}
+
+/* SUBTITLE */
+.subtitle {
+    margin-top: var(--spacing-xs);
+    margin-left: calc(var(--spacing-sm) + 10px);
+
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+
+    letter-spacing: 0.2px;
+    line-height: 1.4;
+}
