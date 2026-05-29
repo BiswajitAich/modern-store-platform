@@ -13,24 +13,24 @@ import CarouselDotBtn from "../carouselDotBtns/CarouselDotBtn";
 import { ProductPageSerialized } from "@/app/_lib/db/types/product.types";
 interface BuyNowBtnProps {
   selectedVariant:
-    | {
-        id: number;
-        productId: number;
-        price: number | null;
-        originalPrice: number | null;
-        stock: number;
-        sku: string | null;
-        optionHash: string;
-        updatedAt: string;
-        images: string[];
-        options: {
-          id: number;
-          key: string;
-          value: string;
-        }[];
-      }
-    | null
-    | undefined;
+  | {
+    id: number;
+    productId: number;
+    price: number | null;
+    originalPrice: number | null;
+    stock: number;
+    sku: string | null;
+    optionHash: string;
+    updatedAt: string;
+    images: string[];
+    options: {
+      id: number;
+      key: string;
+      value: string;
+    }[];
+  }
+  | null
+  | undefined;
   quantity: number;
   isAuthenticated?: boolean;
   productData: ProductPageSerialized;
@@ -162,7 +162,7 @@ const UserConfirmation = ({
           <br />
           {selectedVariant?.options.map((opt) =>
             opt.key.toLowerCase() === "color" ||
-            opt.key.toLowerCase() === "colour" ? (
+              opt.key.toLowerCase() === "colour" ? (
               <div key={opt.id}>
                 {opt.key}:
                 <span
@@ -206,7 +206,10 @@ const UserConfirmation = ({
         >
           <button
             className="button "
-            onClick={() => router.push("/cart")}
+            onClick={() => {
+              toast.message("Feature will be added soon!");
+              // router.push("/cart")
+            }}
             disabled={buying}
           >
             View Cart

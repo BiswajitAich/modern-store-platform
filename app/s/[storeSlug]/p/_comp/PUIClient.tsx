@@ -1,26 +1,24 @@
 "use client";
-// import { ProductPage } from "@/app/_lib/types";
-import { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import styles from "./PUIClient.module.css";
 import BuyNowBtn from "@/app/_components/btns/buyNowBtn.addToCartBtn/BuyNowBtn";
-import AddReviewBtn from "@/app/_components/btns/addReviewBtn/AddReviewBtn";
 import { ProductPageSerialized } from "@/app/_lib/db/types/product.types";
 import AddToCartBtn from "@/app/_components/btns/buyNowBtn.addToCartBtn/AddToCartBtn";
 
 export interface PUIProps {
   productData: ProductPageSerialized;
-  children?: React.ReactNode;
   selectedVariant?: ProductPageSerialized["variants"][number] | null;
   isAuthenticated?: boolean;
-  paramsToReplaceForDefault: string | undefined
+  paramsToReplaceForDefault: string | undefined;
+  children: React.ReactNode;
 }
 
 const PUIClient = ({
   productData,
   selectedVariant,
   isAuthenticated,
-  children,
   paramsToReplaceForDefault,
+  children
 }: PUIProps) => {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<"description" | "reviews">(
@@ -134,31 +132,21 @@ const PUIClient = ({
               </div>
             </div>
           ) : (
-            <div className={styles.reviewsContent}>
-              <div className={styles.reviewsHeader}>
-                <h2 className={styles.contentTitle}>Customer Reviews</h2>
-                <AddReviewBtn productId={productData.id} />
-              </div>
-
-              {/* Reviews */}
-              {productData._count.reviews === 0 ? (
-                <p>No reviews yet. Be the first to review!</p>
-              ) : (
-                <>{children}</>
-              )}
-            </div>
+            <Suspense fallback={<div>Loading Review...</div>}>
+              {children}
+            </Suspense>
           )}
         </div>
       </div>
       {/* Action Buttons */}
       <div className={styles.actionButtons}>
-          <AddToCartBtn />
-          <BuyNowBtn
-            selectedVariant={selectedVariant}
-            quantity={quantity}
-            isAuthenticated={isAuthenticated}
-            productData={productData}
-          />
+        <AddToCartBtn />
+        <BuyNowBtn
+          selectedVariant={selectedVariant}
+          quantity={quantity}
+          isAuthenticated={isAuthenticated}
+          productData={productData}
+        />
       </div>
     </>
   );

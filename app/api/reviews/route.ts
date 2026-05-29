@@ -81,13 +81,17 @@ export const POST = async (
     if (!admin) {
       throw new Error("Product not found");
     }
-
+    const userId = await getAuthenticatedUser().then((user) => user.id)
+    if (!userId) {
+      throw new Error("user id not found!")
+    }
     const review = await prisma.review.create({
       data: {
         productId,
         rating,
         comment,
-        userId: await getAuthenticatedUser().then((user) => user.id),
+        isVerified: true,
+        userId,
       },
     });
 

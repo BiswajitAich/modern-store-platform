@@ -4,14 +4,11 @@ import { Suspense } from "react";
 import Loading from "@/app/loading";
 import NotFound from "@/app/admin/not-found";
 
-import { PageProps } from "@/app/_lib/types";
 
 import EditVariantForm from "../_comp/EditVariantForm";
 
-export default async function EditVariantPage({
-  params,
-}: PageProps) {
-  const { id, variantId } = await params;
+export default async function EditVariantPage(props: PageProps<'/admin/products/[id]/edit/variant/[variantId]'>) {
+  const { id, variantId } = await props.params;
 
   const variantRaw = await prisma.productVariant.findFirst({
     where: {

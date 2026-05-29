@@ -28,14 +28,6 @@ export type CategoryEdit = {
 //   name: string;
 // };
 
-export interface PageProps {
-  params: Promise<{ id: string, variantId?: string, attributeId?: string }>;
-}
-
-export interface PagePropSlug {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
 
 export type CategoryPageDB = Prisma.CategoryGetPayload<{
   select: {

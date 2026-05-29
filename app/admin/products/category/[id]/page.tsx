@@ -1,5 +1,4 @@
 import prisma from "@/lib/prisma";
-import { PageProps } from "../../../../_lib/types";
 import AvailableProducts from "../../_comp/AvailableProducts";
 import { redirect } from "next/navigation";
 import { getAuthenticatedAdmin } from "@/app/_lib/customForServerSide";
@@ -44,8 +43,8 @@ const getAvailableProductsForCategory = async (
     return [];
   }
 };
-const ViewAvailableProductsPage = async ({ params }: PageProps) => {
-  const { id } = await params;
+const ViewAvailableProductsPage = async (props: PageProps<'/admin/products/category/[id]'>) => {
+  const { id } = await props.params;
   const session = await getAuthenticatedAdmin();
   if (!session || session.role !== "admin") {
     redirect("/auth");

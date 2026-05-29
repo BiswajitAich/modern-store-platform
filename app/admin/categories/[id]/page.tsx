@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import EditCategory from "../_comp/EditCategory";
 import NotFound from "../../not-found";
-import { PageProps } from "@/app/_lib/types";
 import { redirect } from "next/navigation";
 import { getAuthenticatedAdmin } from "@/app/_lib/customForServerSide";
 import { cacheLife, cacheTag } from "next/cache";
@@ -46,8 +45,8 @@ const fetchCategoryOptions = async (
   return getFlatCategories(adminId);
 };
 
-const EditCategories = async ({ params }: PageProps) => {
-  const { id } = await params;
+const EditCategories = async ( props : PageProps<'/admin/categories/[id]'>) => {
+  const { id } = await props.params;
   const admin = await getAuthenticatedAdmin();
   if (!admin || admin.role !== "admin") {
     redirect("/auth");

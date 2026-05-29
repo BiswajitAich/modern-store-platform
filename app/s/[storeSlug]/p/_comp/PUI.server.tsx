@@ -7,7 +7,6 @@ import dynamic from "next/dynamic";
 import Price from "@/app/_components/price/Price";
 import DescRating from "@/app/_components/desc_rating/DescRating";
 import { getWishlistItems } from "@/app/_lib/prismaFun";
-import { Suspense } from "react";
 import KeyFeatures from "@/app/_components/keyFeatures/KeyFeatures";
 import { generateVariantHash, normalizeSearchParams } from "../utility";
 import { ProductPageSerialized } from "@/app/_lib/db/types/product.types";
@@ -27,7 +26,10 @@ const PUIServer = async ({
   productData: ProductPageSerialized;
   slug: string;
   storeSlug: string;
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Record<
+    string,
+    string | string[] | undefined
+  >;
 }) => {
   const optionHash = generateVariantHash(searchParams);
   const selectedVariant = (() => {
@@ -64,7 +66,7 @@ const PUIServer = async ({
     typeof searchParams.image === "string" ? parseInt(searchParams.image) : 0;
   const selectedImage = images[imageIndex] ?? images[0];
 
-  const wishlistItems = (await isAuthenticatedUser())
+  const wishlistItems = (await await isAuthenticatedUser())
     ? await getWishlistItems(
       Number(productData.id),
       (await getAuthenticatedUser()).id,
@@ -178,10 +180,9 @@ const PUIServer = async ({
             paramsToReplaceForDefault={paramsToReplaceForDefault}
             productData={productData}
             selectedVariant={selectedVariant}
+            isAuthenticated={await isAuthenticatedUser()}
           >
-            <Suspense fallback={<div>Loading reviews...</div>}>
-              <Reviews productId={productData.id} />
-            </Suspense>
+            <Reviews productId={productData.id} count={productData._count.reviews} />
           </PUIClient>
         </div>
       </div>

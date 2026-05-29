@@ -21,11 +21,7 @@ coverage/
 # =========================
 # Environment Variables
 # =========================
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*
 
 # =========================
 # Logs
@@ -126,3 +122,8 @@ docker-data/
 # Windows
 # =========================
 Desktop.ini
+
+# =========================
+# Testing
+# =========================
+scripts/

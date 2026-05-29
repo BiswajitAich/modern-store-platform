@@ -1,12 +1,11 @@
 import prisma from "@/lib/prisma";
 import NotFound from "../../not-found";
 import ProductAttributesAndVariants from "../_comp/ProductAttributesAndVariants";
-import { PageProps } from "@/app/_lib/types";
 import { Suspense } from "react";
 import Loading from "@/app/loading";
 
-export default async function ProductVariantsPage({ params }: PageProps) {
-  const { id } = await params;
+export default async function ProductVariantsPage(props: PageProps<'/admin/products/[id]'>) {
+  const { id } = await props.params;
 
   const productRaw = await prisma.product.findUnique({
     where: { id: Number(id) },

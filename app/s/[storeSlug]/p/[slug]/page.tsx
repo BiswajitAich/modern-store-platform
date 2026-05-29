@@ -4,10 +4,6 @@ import PUIServer from "../_comp/PUI.server";
 import { cacheLife, cacheTag } from "next/cache";
 import { fetchPageProductDataBySlug } from "@/app/_lib/db/queries/product.query";
 import { ProductPageSerialized } from "@/app/_lib/db/types/product.types";
-interface PageProp {
-  params: Promise<{ storeSlug: string; slug: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
 
 const getProductBySlug = async (
   storeSlug: string,
@@ -20,31 +16,29 @@ const getProductBySlug = async (
   return await fetchPageProductDataBySlug(slug, storeSlug);
 };
 
-const Productpage = async ({ params, searchParams }: PageProp) => {
-  const { slug, storeSlug } = await params;
+const Productpage = async (props: PageProps<'/s/[storeSlug]/p/[slug]'>) => {
+  const { slug, storeSlug } = await props.params;
+  const searchParams = await props.searchParams;
 
-  const productData =
-    await getProductBySlug(storeSlug, slug);
-    console.log(productData);
-    
+  const productData = await getProductBySlug(storeSlug, slug);
+  // console.log(productData);
+
 
   if (!productData) notFound();
   return (
-      <PUIServer
-        productData={productData}
-        searchParams={await searchParams}
-        slug={slug}
-        storeSlug={storeSlug}
-      />
+    <PUIServer
+      productData={productData}
+      searchParams={searchParams}
+      slug={slug}
+      storeSlug={storeSlug}
+    />
   );
 };
 
 export default Productpage;
 
-export const generateMetadata = async ({
-  params,
-}: PageProp): Promise<Metadata> => {
-  const { slug, storeSlug } = await params;
+export const generateMetadata = async (props: PageProps<'/s/[storeSlug]/p/[slug]'>): Promise<Metadata> => {
+  const { slug, storeSlug } = await props.params;
   if (!slug || !storeSlug) return {};
 
   const product = await getProductBySlug(storeSlug, slug);

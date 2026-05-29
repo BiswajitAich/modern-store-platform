@@ -246,6 +246,7 @@ enum WhatsAppOrderStatus {
   PENDING // Awaiting confirmation
   CONFIRMED // Order accepted
   CANCELLED
+  DELIVERED
 }
 
 model CartItem {

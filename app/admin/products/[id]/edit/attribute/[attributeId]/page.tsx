@@ -1,12 +1,9 @@
 import prisma from "@/lib/prisma";
 import NotFound from "@/app/admin/not-found";
-import { PageProps } from "@/app/_lib/types";
 import EditProductAttribute from "../_comp/EditProductAttribute";
 
-export default async function EditProductAttributePage({
-  params,
-}: PageProps) {
-  const { id, attributeId } = await params;
+export default async function EditProductAttributePage(props: PageProps<'/admin/products/[id]/edit/attribute/[attributeId]'>) {
+  const { id, attributeId } = await props.params;
 
   const attribute = await prisma.productAttribute.findFirst({
     where: {

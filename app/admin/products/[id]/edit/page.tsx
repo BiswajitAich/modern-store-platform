@@ -2,12 +2,11 @@ import prisma from "@/lib/prisma";
 import NotFound from "../../../not-found";
 import { Suspense } from "react";
 import Loading from "@/app/loading";
-import { PageProps } from "@/app/_lib/types";
 import EditProductVariants from "./variant/_comp/EditProductVariants";
 
 export default async function EditProductVariantsPage({
   params,
-}: PageProps) {
+}: PageProps<'/admin/products/[id]/edit'>) {
   const { id } = await params;
 
   const productRaw = await prisma.product.findUnique({
