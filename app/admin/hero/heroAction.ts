@@ -65,30 +65,38 @@ export const createHero = async (
     }
 
     let imagePublicId: string | null = null;
-    imagePublicId = await new Promise<string>(async (res, rej) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: "commyfy/heroBanners",
+    const folderName = process.env.CLOUDINARY_FOLDER_NAME ?? "commyfy-err";
+    try {
+      imagePublicId = await new Promise<string>(async (res, rej) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: `${folderName}/heroBanners`,
+          },
+          (err, result) => (err ? rej(err) : res(result?.public_id || "")),
+        );
+        stream.end(Buffer.from(await heroImage.arrayBuffer()));
+      });
+      await prisma.heroBanner.create({
+        data: {
+          title,
+          subtitle,
+          buttonText,
+          productId,
+          categoryId,
+          sortOrder,
+          isActive,
+          adminId: session.user.id,
+          image: imagePublicId,
+          startDate,
+          endDate,
         },
-        (err, result) => (err ? rej(err) : res(result?.public_id || "")),
-      );
-      stream.end(Buffer.from(await heroImage.arrayBuffer()));
-    });
-    await prisma.heroBanner.create({
-      data: {
-        title,
-        subtitle,
-        buttonText,
-        productId,
-        categoryId,
-        sortOrder,
-        isActive,
-        adminId: session.user.id,
-        image: imagePublicId,
-        startDate,
-        endDate,
-      },
-    });
+      });
+    } catch (error) {
+      if (imagePublicId) {
+        await cloudinary.uploader.destroy(imagePublicId);
+      }
+      throw error;
+    }
   });
 
   if (error) {

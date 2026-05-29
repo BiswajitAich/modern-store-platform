@@ -212,6 +212,33 @@ erDiagram
 └── tsconfig.json
 ```
 
+## 🔒Environment Variables
+```bash
+# NEXT_PUBLIC_WHATSAPP_NUMBER=
+
+# NeonDB
+DATABASE_URL=postgresql:.....sslmode=verify-full&channel_binding=require
+
+NEXTAUTH_SECRET=secretkey
+
+# Redis
+REDIS_USERNAME=default
+REDIS_PASSWORD=o.............
+REDIS_HOST=redis-.............com
+REDIS_PORT=1...6
+
+# Google mail
+EMAIL_USER=.........@gmail.com
+EMAIL_PASS=.........
+
+# Cloudinary
+CLOUDINARY_API_KEY=..........
+CLOUDINARY_API_SECRET=..........
+CLOUDINARY_CLOUD_NAME=..........
+CLOUDINARY_FOLDER_NAME=....
+
+MAINTENANCE_MODE=true/false
+```
 
 ---
 

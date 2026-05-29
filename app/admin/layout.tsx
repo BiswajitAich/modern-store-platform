@@ -1,7 +1,5 @@
 import { Metadata } from "next";
-// import { Suspense } from "react";
 import { Toaster } from "sonner";
-// import Loading from "../loading";
 
 export const metadata: Metadata = {
   title: "Admin Panel",
@@ -20,3 +18,4 @@ export default function AdminLayout({
     </>
   );
 }
+

@@ -307,12 +307,14 @@ export const createProductVariant = async (
 
 
     // Upload images to Cloudinary and update product with image public_ids
+    const folderName = process.env.CLOUDINARY_FOLDER_NAME ?? "commyfy-err";
+
     uploadedImages = await Promise.all(
       images.map(async (img) => {
         return new Promise<string>(async (res, rej) => {
           const stream = cloudinary.uploader.upload_stream(
             {
-              folder: "commyfy/product-varients",
+              folder: `${folderName}/product-varients`,
               public_id: crypto.randomUUID(),
               overwrite: false,
             },

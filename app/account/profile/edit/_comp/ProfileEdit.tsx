@@ -108,17 +108,24 @@ const Edit = ({ userData }: UserProps) => {
       <div className={styles.imageSection}>
         <div className={styles.imagePreviewContainer}>
           {imagePreview ? (
-            <Image
-              src={
-                imagePreview.startsWith("commyfy/profile-image")
-                  ? `/api/image?imageId=${encodeURIComponent(imagePreview)}`
-                  : imagePreview
-              }
-              alt="Profile preview"
-              fill
-              className={styles.imagePreview}
-              priority
-            />
+            (() => {
+              const isCloudinaryPublicId =
+                !imagePreview.startsWith("blob:") &&
+                !imagePreview.startsWith("http");
+              return (
+                <Image
+                  src={
+                    isCloudinaryPublicId
+                      ? `/api/image?imageId=${encodeURIComponent(imagePreview)}`
+                      : imagePreview
+                  }
+                  alt="Profile preview"
+                  fill
+                  className={styles.imagePreview}
+                  priority
+                />
+              );
+            })()
           ) : (
             <div className={styles.imagePlaceholder}>{getInitials()}</div>
           )}
@@ -137,7 +144,7 @@ const Edit = ({ userData }: UserProps) => {
         <label
           htmlFor="profileImage"
           className={styles.imageUploadLabel}
-          // onClick={handleImageClick}
+        // onClick={handleImageClick}
         >
           <svg
             width="20"
@@ -227,9 +234,8 @@ const Edit = ({ userData }: UserProps) => {
         </button>
         <button
           type="submit"
-          className={`${styles.button} ${styles.buttonPrimary} ${
-            pending ? styles.loading : ""
-          }`}
+          className={`${styles.button} ${styles.buttonPrimary} ${pending ? styles.loading : ""
+            }`}
           disabled={!isDirty || pending}
         >
           {pending ? "Saving..." : "Save Changes"}

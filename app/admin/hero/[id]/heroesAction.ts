@@ -5,18 +5,17 @@ import prisma from "@/lib/prisma";
 import cloudinary from "@/app/_lib/cloudinary";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { ErrorFormState } from "@/app/_lib/types";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { z } from "zod";
+import { getAuthenticatedAdmin } from "@/app/_lib/customForServerSide";
 
 export const updateHeroAction = async (
     _prevState: ErrorFormState | undefined,
     form: FormData,
 ): Promise<ErrorFormState> => {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthenticatedAdmin();
 
     const [error] = await tryIt(async () => {
-        if (!session || session.user.role !== "admin") {
+        if (!session || session.role !== "admin") {
             throw new Error("Unauthorized");
         }
 
@@ -119,79 +118,85 @@ export const updateHeroAction = async (
 
         // -------- Upload image before transaction --------
         let newImagePublicId: string | null = null;
+        const folderName = process.env.CLOUDINARY_FOLDER_NAME ?? "commyfy-err";
 
-        if (image && image.size > 0) {
-            newImagePublicId = await new Promise<string>((res, rej) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    { folder: "commyfy/heroes" },
-                    (err, result) =>
-                        err ? rej(err) : res(result?.public_id || ""),
-                );
-
-                image
-                    .arrayBuffer()
-                    .then((buffer) => {
-                        stream.end(Buffer.from(buffer));
-                    })
-                    .catch(rej);
-            });
-        }
-
-        // -------- Transaction --------
-        await prisma.$transaction(async (tx) => {
-            // Handle sort order shifting
-            if (sortOrder !== existingHero.sortOrder) {
-                if (sortOrder > existingHero.sortOrder) {
-                    await tx.heroBanner.updateMany({
-                        where: {
-                            sortOrder: {
-                                gt: existingHero.sortOrder,
-                                lte: sortOrder,
+        try {
+            await prisma.$transaction(async (tx) => {
+                // Handle sort order shifting
+                if (sortOrder !== existingHero.sortOrder) {
+                    if (sortOrder > existingHero.sortOrder) {
+                        await tx.heroBanner.updateMany({
+                            where: {
+                                sortOrder: {
+                                    gt: existingHero.sortOrder,
+                                    lte: sortOrder,
+                                },
+                                NOT: { id },
                             },
-                            NOT: { id },
-                        },
-                        data: {
-                            sortOrder: {
-                                decrement: 1,
+                            data: {
+                                sortOrder: {
+                                    decrement: 1,
+                                },
                             },
-                        },
-                    });
-                } else {
-                    await tx.heroBanner.updateMany({
-                        where: {
-                            sortOrder: {
-                                gte: sortOrder,
-                                lt: existingHero.sortOrder,
+                        });
+                    } else {
+                        await tx.heroBanner.updateMany({
+                            where: {
+                                sortOrder: {
+                                    gte: sortOrder,
+                                    lt: existingHero.sortOrder,
+                                },
+                                NOT: { id },
                             },
-                            NOT: { id },
-                        },
-                        data: {
-                            sortOrder: {
-                                increment: 1,
+                            data: {
+                                sortOrder: {
+                                    increment: 1,
+                                },
                             },
-                        },
-                    });
+                        });
+                    }
                 }
-            }
 
-            // Update only changed fields
-            await tx.heroBanner.update({
-                where: { id },
-                data: {
-                    ...(title !== undefined && { title }),
-                    ...(subtitle !== undefined && { subtitle }),
-                    ...(buttonText !== undefined && { buttonText }),
-                    ...(categoryId !== undefined && { categoryId }),
-                    ...(productId !== undefined && { productId }),
-                    ...(sortOrder !== undefined && { sortOrder }),
-                    ...(isActive !== undefined && { isActive }),
-                    ...(startDateRaw !== null && { startDate }),
-                    ...(endDateRaw !== null && { endDate }),
-                    ...(newImagePublicId && { image: newImagePublicId }),
-                },
+                // Update only changed fields
+                await tx.heroBanner.update({
+                    where: { id },
+                    data: {
+                        ...(title !== undefined && { title }),
+                        ...(subtitle !== undefined && { subtitle }),
+                        ...(buttonText !== undefined && { buttonText }),
+                        ...(categoryId !== undefined && { categoryId }),
+                        ...(productId !== undefined && { productId }),
+                        ...(sortOrder !== undefined && { sortOrder }),
+                        ...(isActive !== undefined && { isActive }),
+                        ...(startDateRaw !== null && { startDate }),
+                        ...(endDateRaw !== null && { endDate }),
+                        ...(newImagePublicId && { image: newImagePublicId }),
+                    },
+                });
             });
-        });
+            if (image && image.size > 0) {
+                newImagePublicId = await new Promise<string>((res, rej) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: `${folderName}/heroes` },
+                        (err, result) =>
+                            err ? rej(err) : res(result?.public_id || ""),
+                    );
 
+                    image
+                        .arrayBuffer()
+                        .then((buffer) => {
+                            stream.end(Buffer.from(buffer));
+                        })
+                        .catch(rej);
+                });
+            }
+        } catch (err) {
+            if (newImagePublicId) {
+                await cloudinary.uploader.destroy(newImagePublicId);
+
+                throw err;
+            }
+        }
         // -------- Cleanup old image --------
         if (newImagePublicId && existingHero.image) {
             await cloudinary.uploader.destroy(existingHero.image);
@@ -211,7 +216,7 @@ export const updateHeroAction = async (
     }
 
     revalidatePath("/admin/hero");
-    revalidateTag(`store-${session?.user.storeSlug}-heroes`, "max")
+    revalidateTag(`store-${session?.storeSlug}-heroes`, "max")
 
     return {
         error: null,

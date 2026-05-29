@@ -42,6 +42,7 @@ export const getAuthenticatedAdmin = async () => {
     return {
       id: "",
       role: "",
+      storeSlug: ""
     };
   }
 

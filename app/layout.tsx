@@ -25,9 +25,9 @@ export const metadata: Metadata = {
   description:
     "COMMYFY is a powerful e-commerce platform that empowers businesses to create stunning online stores with ease. With its user-friendly interface and robust features, COMMYFY enables entrepreneurs to showcase their products, manage inventory, and provide seamless shopping experiences for customers.",
 
-  metadataBase: new URL("https://commyfy.com"),
+  metadataBase: new URL("https://commyfy.vercel.app"),
 
-  authors: [{ name: "COMMYFY Team", url: "https://commyfy.com" }],
+  authors: [{ name: "COMMYFY Team", url: "https://commyfy.vercel.app" }],
 
   icons: {
     icon: "/favicon.ico",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     description:
       "COMMYFY is a powerful e-commerce platform that empowers businesses to create stunning online stores with ease.",
 
-    url: "https://commyfy.com",
+    url: "https://commyfy.vercel.app",
     siteName: "COMMYFY",
 
     images: [
@@ -64,22 +64,22 @@ export const metadata: Metadata = {
   },
 };
 
-// const maintenance = process.env.MAINTENANCE_MODE === "true";
+const maintenance = (process.env.MAINTENANCE_MODE ?? "false") === "true";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // if (maintenance) {
-  //   return (
-  //     <html lang="en">
-  //       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-  //         <MaintenancePage />;
-  //       </body>
-  //     </html>
-  //   );
-  // }
+  if (maintenance) {
+    return (
+      <html lang="en">
+        <body className={`${geistSans.variable} ${geistMono.variable}`}>
+          <MaintenancePage />;
+        </body>
+      </html>
+    );
+  }
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>

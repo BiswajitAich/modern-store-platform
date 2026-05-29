@@ -4,6 +4,7 @@ import AvailableProducts from "../../_comp/AvailableProducts";
 import { redirect } from "next/navigation";
 import { getAuthenticatedAdmin } from "@/app/_lib/customForServerSide";
 import { cacheTag, cacheLife } from "next/cache";
+
 const getAvailableProductsForCategory = async (
   categoryId: string,
   adminId: string

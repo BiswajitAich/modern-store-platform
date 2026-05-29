@@ -6,17 +6,16 @@ import cloudinary from "@/app/_lib/cloudinary";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { ErrorFormState } from "@/app/_lib/types";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { z } from "zod";
 import { Category } from "@/app/generated/prisma/client";
+import { getAuthenticatedAdmin } from "@/app/_lib/customForServerSide";
 
 export const createCategorieAction = async (
   _prevState: ErrorFormState | undefined,
   form: FormData,
 ): Promise<ErrorFormState> => {
   console.log("✅ SERVER ACTION HIT");
-  const session = await getServerSession(authOptions);
+  const session = await getAuthenticatedAdmin();
   const [error] = await tryIt(async () => {
     console.log("Form Data:", form);
     const name = form.get("name") as string;
@@ -60,61 +59,71 @@ export const createCategorieAction = async (
       throw new Error(msg);
     }
 
-    if (!session || session.user.role !== "admin") {
+    if (!session || session.role !== "admin") {
       throw new Error("Unauthorized");
     }
+    let newImagePublicId: string | null = null;
+    try {
+      // 1️⃣ Create category with sortOrder handling
+      let category: Category;
+      let newSortOrder: number = 1;
+      if (sortOrder) {
+        await prisma.category.updateMany({
+          where: {
+            adminId: session.id,
+            sortOrder: { gte: parseInt(sortOrder) },
+          },
+          data: { sortOrder: { increment: 1 } },
+        });
+        newSortOrder = parseInt(sortOrder);
+      } else {
+        const maxSort = await prisma.category.aggregate({
+          _max: { sortOrder: true },
+          where: {
+            parentId: parentIdRaw ? Number(parentIdRaw) : null,
+            adminId: session.id,
+          },
+        });
 
-    // 1️⃣ Create category with sortOrder handling
-    let category: Category;
-    let newSortOrder: number = 1;
-    if (sortOrder) {
-      await prisma.category.updateMany({
-        where: {
-          adminId: session.user.id,
-          sortOrder: { gte: parseInt(sortOrder) },
-        },
-        data: { sortOrder: { increment: 1 } },
-      });
-      newSortOrder = parseInt(sortOrder);
-    } else {
-      const maxSort = await prisma.category.aggregate({
-        _max: { sortOrder: true },
-        where: {
+        newSortOrder = (maxSort._max.sortOrder || 0) + 1;
+      }
+      category = await prisma.category.create({
+        data: {
+          adminId: session.id,
+          name,
+          slug,
+          isActive,
+          description,
           parentId: parentIdRaw ? Number(parentIdRaw) : null,
-          adminId: session.user.id,
+          sortOrder: newSortOrder,
         },
       });
 
-      newSortOrder = (maxSort._max.sortOrder || 0) + 1;
-    }
-    category = await prisma.category.create({
-      data: {
-        adminId: session.user.id,
-        name,
-        slug,
-        isActive,
-        description,
-        parentId: parentIdRaw ? Number(parentIdRaw) : null,
-        sortOrder: newSortOrder,
-      },
-    });
+      const folderName = process.env.CLOUDINARY_FOLDER_NAME ?? "commyfy-err";
 
-    // 2️⃣ Upload image outside transaction
-    let imagePublicId: string | null = null;
-    if (image && image.size > 0) {
-      imagePublicId = await new Promise<string>((res, rej) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "commyfy/categories" },
-          (err, result) => (err ? rej(err) : res(result!.public_id)),
-        );
-        image.arrayBuffer().then((b) => stream.end(Buffer.from(b)));
-      });
+      // 2️⃣ Upload image outside transaction
 
-      // 3️⃣ Update category with image
-      await prisma.category.update({
-        where: { id: category!.id },
-        data: { image: imagePublicId },
-      });
+      if (image && image.size > 0) {
+        newImagePublicId = await new Promise<string>((res, rej) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: `${folderName}/categories` },
+            (err, result) => (err ? rej(err) : res(result!.public_id)),
+          );
+          image.arrayBuffer().then((b) => stream.end(Buffer.from(b)));
+        });
+
+        // 3️⃣ Update category with image
+        await prisma.category.update({
+          where: { id: category!.id },
+          data: { image: newImagePublicId },
+        });
+      }
+    } catch (err) {
+      if (newImagePublicId) {
+        await cloudinary.uploader.destroy(newImagePublicId);
+      }
+
+      throw err;
     }
   });
   if (error) {
@@ -127,8 +136,8 @@ export const createCategorieAction = async (
   }
   console.log("Category created successfully");
   // revalidatePath("/admin/categories");
-  if (session?.user.id)
-    revalidateTag(`admin-counts-${session.user.id}`, "max");
+  if (session?.id)
+    revalidateTag(`admin-counts-${session.id}`, "max");
   redirect("/admin/categories");
 };
 
@@ -172,11 +181,11 @@ export async function updateCategoryAction(id: number, form: FormData) {
 
     // -------- Upload image BEFORE transaction --------
     let newImagePublicId: string | null = null;
-
+    const folderName = process.env.CLOUDINARY_FOLDER_NAME ?? "commyfy-err";
     if (image && image.size > 0) {
       newImagePublicId = await new Promise<string>(async (res, rej) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "commyfy/categories" },
+          { folder: `${folderName}/categories` },
           (err, result) => (err ? rej(err) : res(result?.public_id || "")),
         );
         stream.end(Buffer.from(await image.arrayBuffer()));
@@ -263,9 +272,9 @@ export async function deleteCategory(id: number) {
         error instanceof Error ? error.message : "Failed to delete category",
     };
   }
-  const session = await getServerSession(authOptions);
-  if (session?.user.id)
-    revalidateTag(`admin-counts-${session.user.id}`, "max");
+  const session = await getAuthenticatedAdmin();
+  if (session?.id)
+    revalidateTag(`admin-counts-${session.id}`, "max");
   revalidatePath("/admin/products");
   return { success: true };
 }

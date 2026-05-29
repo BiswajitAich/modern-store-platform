@@ -1,14 +1,12 @@
 "use server";
-
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { tryIt } from "@/app/_lib/custom";
 import { ErrorFormState } from "@/app/_lib/types";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import cloudinary from "@/app/_lib/cloudinary";
+import { getAuthenticatedUser } from "@/app/_lib/customForServerSide";
 
 export async function updateProfileAction(
   _prevState: ErrorFormState | undefined,
@@ -18,8 +16,8 @@ export async function updateProfileAction(
     /* ---------------------------------- */
     /* Auth Guard                         */
     /* ---------------------------------- */
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "user") {
+    const session = await getAuthenticatedUser();
+    if (!session || session.role !== "user") {
       throw new Error("Unauthorized request");
     }
 
@@ -32,8 +30,8 @@ export async function updateProfileAction(
     const profileImageEntry = form.get("profileImage");
     const profileImage =
       profileImageEntry instanceof File &&
-      profileImageEntry.size > 0 &&
-      profileImageEntry.type.startsWith("image/")
+        profileImageEntry.size > 0 &&
+        profileImageEntry.type.startsWith("image/")
         ? profileImageEntry
         : undefined;
     const imageFileChanged = form.get("imageFileChanged") === "true";
@@ -58,48 +56,56 @@ export async function updateProfileAction(
     /* ---------------------------------- */
     /* Image Handling (Reference only)    */
     /* ---------------------------------- */
+
     let imagePublicId: string | null = null;
 
-    if (imageFileChanged  && profileImage instanceof File) {
-      if (previousImageId) {
-        const destroyed = await cloudinary.uploader.destroy(previousImageId);
-        if (destroyed.result !== "ok" && destroyed.result !== "not found") {
-          throw new Error("Previous image deletion failed");
+    if (imageFileChanged && profileImage instanceof File) {
+      const folderName = process.env.CLOUDINARY_FOLDER_NAME ?? "commyfy-err";
+
+      try {
+        // Upload new image first
+        imagePublicId = await new Promise<string>((res, rej) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: `${folderName}/profile-image`,
+              resource_type: "image",
+            },
+            (err, result) => (err ? rej(err) : res(result!.public_id))
+          );
+
+          profileImage
+            .arrayBuffer()
+            .then((b) => stream.end(Buffer.from(b)));
+        });
+
+        // Update DB
+        await prisma.user.update({
+          where: { userId: session.id },
+          data: {
+            firstName,
+            lastName,
+            phoneNumber,
+            ...(imageFileChanged && {
+              profileImage: imagePublicId,
+            }),
+          },
+        });
+
+        // Delete old image AFTER success
+        if (previousImageId) {
+          await cloudinary.uploader.destroy(previousImageId);
         }
+      } catch (err) {
+        // Rollback uploaded image
+        if (imagePublicId) {
+          await cloudinary.uploader.destroy(imagePublicId);
+        }
+
+        throw err;
       }
-      console.log("image destyoyed !");
-
-      imagePublicId = await new Promise<string>((res, rej) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "commyfy/profile-image" },
-          (err, result) => (err ? rej(err) : res(result!.public_id))
-        );
-        profileImage.arrayBuffer().then((b) => stream.end(Buffer.from(b)));
-      });
-      console.log("image uploaded !");
-    }
-    if (imageFileChanged && profileImage && !imagePublicId) {
-      throw new Error("Image upload failed");
     }
 
-    /* ---------------------------------- */
-    /* Database Update                    */
-    /* ---------------------------------- */
-    await prisma.user.update({
-      where: { userId: session.user.id },
-      data: {
-        firstName,
-        lastName,
-        phoneNumber,
-        ...(imagePublicId && { profileImage: imagePublicId }),
-      },
-    });
-    console.log("database updated !");
   });
-
-  /* ---------------------------------- */
-  /* Error Handling                     */
-  /* ---------------------------------- */
   if (error) {
     return {
       error:
