@@ -1,13 +1,17 @@
 "use server";
 import { sendOtpEmail, verifyOtpCode } from "@biswajitaich/email-auth";
-import { tryIt } from "../_lib/custom";
 import prisma from "@/lib/prisma";
+import { hash } from "bcrypt";
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 // ---------------------------------------------------------------------------------------------------
-// sendOtpAction.ts - sending OTP to users provided email
-export async function sendOtpAction(email: string, isAdmin: string = "false") {
+// sending OTP to users provided email
+export async function sendOtpAction(
+  email: string,
+  isAdmin: string = "false",
+  purpose: "signup" | "reset-password" = "signup"
+) {
   if (!email || !emailRegex.test(email)) {
     return {
       success: false,
@@ -16,11 +20,18 @@ export async function sendOtpAction(email: string, isAdmin: string = "false") {
   }
 
   try {
-    const check = await checkEmailExists(email, isAdmin);
-    if (check.success) {
+    const exists = await checkEmailExists(email, isAdmin);
+    if (purpose === "signup" && exists) {
       return {
         success: false,
-        message: `${email} is already used to signup.\n Try loggin!`,
+        message: "Email already registered. Try logging in.",
+      };
+    }
+
+    if (purpose === "reset-password" && !exists) {
+      return {
+        success: false,
+        message: "No account found with this email.",
       };
     }
 
@@ -46,7 +57,7 @@ export async function sendOtpAction(email: string, isAdmin: string = "false") {
 }
 
 // ---------------------------------------------------------------------------------------------------
-// verifyOtpAction.ts - verifying OTP
+// verifying OTP
 export async function verifyOtpAction(email: string, otp: string) {
   if (!email || !emailRegex.test(email)) {
     return {
@@ -93,16 +104,41 @@ export async function verifyOtpAction(email: string, otp: string) {
 async function checkEmailExists(
   email: string,
   isAdmin: string
-): Promise<{ success: boolean }> {
-  const [error, result] = await tryIt(async () => {
-    if (isAdmin === "true") {
-      return prisma.admin.findUnique({ where: { email } });
+): Promise<boolean> {
+  const user =
+    isAdmin === "true"
+      ? await prisma.admin.findUnique({ where: { email } })
+      : await prisma.user.findUnique({ where: { email } });
+
+  return !!user;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// reset Password
+export async function resetPasswordAction({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) {
+  try {
+    const exists = await checkEmailExists(email, "false");
+
+    if (!exists) {
+      return { message: "Email not found SignUp to join us!", success: false };
     }
-    return prisma.user.findUnique({ where: { email } });
-  });
-  if (error) {
-    console.error("Error checking email:", error);
+
+    const passwordHash = await hash(password, 10);
+
+    await prisma.user.update({
+      where: { email },
+      data: { passwordHash },
+    });
+
+    return { message: "Password reset successful", success: true };
+  } catch (error) {
+    console.error("Error resetting password:", (error as Error).message);
     return { success: false };
   }
-  return { success: !!result };
 }

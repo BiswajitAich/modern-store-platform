@@ -7,6 +7,7 @@ import AuthProvider from "./providers/AuthProvider";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
 import MaintenancePage from "./_components/MaintenancePage";
+import PageTransition from "./_components/PageTransition";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -99,7 +100,9 @@ export default function RootLayout({
             <Header />
           </Suspense>
           <Suspense fallback={<div style={{ minHeight: "80vh" }} />}>
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </Suspense>
         </AuthProvider>
         <Toaster position="top-right" duration={5000} richColors closeButton />

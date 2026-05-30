@@ -121,7 +121,7 @@ const Profile = ({ userData }: UserProps) => {
                 Edit Profile
               </Link>
               <Link
-                href="/account/profile/security"
+                href="/auth/forgotPassword"
                 className={styles.actionButton}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -134,7 +134,8 @@ const Profile = ({ userData }: UserProps) => {
                 </svg>
                 Change Password
               </Link>
-              <Link href="/account/orders" className={styles.actionButton}>
+              {/* /account/orders */}
+              <Link href="#" className={styles.actionButton}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path
                     strokeLinecap="round"

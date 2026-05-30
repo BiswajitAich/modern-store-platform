@@ -1,8 +1,7 @@
 .btnAddToCart,
 .btnBuyNow {
   flex: 1;
-  padding: clamp(var(--spacing-xs), 2vw, var(--spacing-md))
-    clamp(var(--spacing-sm), 3vw, var(--spacing-lg));
+  padding: clamp(var(--spacing-xs), 2vw, var(--spacing-md)) clamp(var(--spacing-sm), 3vw, var(--spacing-lg));
   border-radius: var(--radius-md);
   font-size: var(--font-size-lg);
   font-weight: 600;
@@ -24,7 +23,7 @@
   border: 2px solid var(--color-primary);
 }
 
-.btnAddToCart:hover {
+.btnAddToCart:hover:not(:disabled) {
   background: var(--color-primary-dark);
   border-color: var(--color-primary);
   transform: translateY(-2px);
@@ -38,40 +37,177 @@
   border: 2px solid var(--color-primary);
 }
 
-.btnBuyNow:hover {
+.btnBuyNow:hover:not(:disabled) {
   background: var(--color-primary-dark);
   border-color: var(--color-primary-dark);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
-/* ----- order confirmation ----- */
+
+/* ── Overlay ── */
 .confirmationOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   backdrop-filter: blur(8px) brightness(0.5);
   z-index: 9999;
   display: flex;
+  align-items: center;
   justify-content: center;
+  padding: var(--spacing-sm);
 }
+
+/* ── Modal box ── */
 .confirmationBox {
   background-color: var(--bg-tertiary);
   width: 100%;
   max-width: 800px;
-  min-height: 60vh;
-  padding: var(--spacing-sm);
-  padding-top: 10vh;
-  margin: var(--spacing-sm);
+  max-height: 90vh;
+  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
+/* ── Modal header ── */
+.confirmationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  transition: background var(--transition-base), color var(--transition-base);
+}
+
+.closeBtn:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* ── Variant info ── */
+.variantInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.variantLabel {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.variantOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-base);
+}
+
+.optionKey {
+  color: var(--text-secondary);
+}
+
+.optionValue {
+  font-weight: 500;
+}
+
+.colorSwatch {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.quantityText {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+}
+
+/* ── Action row ── */
+.actionRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-sm);
+}
+
+.actionRow .button {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ── Embla carousel ── */
+.emblaRoot {
+  width: 100%;
+}
+
+.emblaViewport {
+  overflow: hidden;
+  position: relative;
+  border-radius: var(--radius-md);
+}
+
+.emblaContainer {
+  display: flex;
+}
+
+.emblaSlide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.emblaSlideInner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 320px;
+}
+
+.emblaImage {
+  object-fit: contain;
+}
+
+.emblaDots {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+}
+
+/* ── Responsive ── */
 @media (max-width: 480px) {
+
   .btnAddToCart,
   .btnBuyNow {
     font-size: var(--font-size-base);
+  }
+
+  .actionRow {
+    flex-direction: column;
+  }
+
+  .actionRow .button {
+    width: 100%;
   }
 }

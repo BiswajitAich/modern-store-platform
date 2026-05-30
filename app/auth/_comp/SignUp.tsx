@@ -4,7 +4,7 @@ import Image from "next/image";
 import styles from "../../styles/auth/sign__.module.css";
 import { Activity, useEffect, useState } from "react";
 // import ErrorMsg from "./ErrorMsg";
-import { sendOtpAction, verifyOtpAction } from "../verifyEmailAction";
+import { sendOtpAction, verifyOtpAction } from "../auth.action";
 import { tryIt } from "@/app/_lib/custom";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";

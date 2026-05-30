@@ -1,4 +1,5 @@
 import type { Prisma } from "@/app/generated/prisma/client";
+import { UserProfile, AdminProfile } from "./db/queries/profile.query";
 
 export interface ErrorFormState {
   error: string | null | undefined;
@@ -22,12 +23,6 @@ export type CategoryEdit = {
     products: number;
   };
 };
-
-// export type CategoryOption = {
-//   id: number;
-//   name: string;
-// };
-
 
 export type CategoryPageDB = Prisma.CategoryGetPayload<{
   select: {
@@ -70,76 +65,6 @@ export type CategoryPage = Omit<CategoryPageDB, "products"> & {
   }[];
 };
 
-// export interface ProductPageDB {
-//   id: number;
-//   name: string;
-//   updatedAt: Date;
-//   _count: {
-//     reviews: number;
-//   };
-//   description: string | null;
-//   brand: string | null;
-//   attributes: {
-//     id: number;
-//     key: string;
-//     value: string;
-//   }[];
-//   variants: {
-//     id: number;
-//     updatedAt: Date;
-//     images: {
-//       image: string;
-//     }[];
-//     productId: number;
-//     price: Decimal;
-//     stock: number;
-//     sku: string | null;
-//     options: {
-//       id: number;
-//       key: string;
-//       value: string;
-//     }[];
-//     originalPrice: Decimal | null;
-//     optionHash: string;
-//   }[];
-// }
-
-// export interface ProductPageSerialized {
-//   id: number;
-//   name: string;
-//   description: string | null;
-//   brand: string | null;
-//   updatedAt: string;
-
-//   attributes: {
-//     id: number;
-//     key: string;
-//     value: string;
-//   }[];
-
-//   variants: {
-//     id: number;
-//     productId: number;
-//     price: number | null;
-//     originalPrice: number | null;
-//     stock: number;
-//     sku: string | null;
-//     optionHash: string;
-//     updatedAt: string;
-
-//     images: string[];
-
-//     options: {
-//       id: number;
-//       key: string;
-//       value: string;
-//     }[];
-//   }[];
-
-//   _count: {
-//     reviews: number;
-//   };
-// }
 
 type ProductWithVariantRaw = Prisma.ProductGetPayload<{
   include: {
@@ -168,72 +93,14 @@ export type ProductStorepageProp = Omit<ProductWithVariantRaw, "variants"> & {
 };
 
 export type UserData =
-  | ({
-    role: "user";
-    id: string;
-  } & Prisma.UserGetPayload<{
-    select: {
-      userId: true;
-      firstName: true;
-      lastName: true;
-      phoneNumber: true;
-      email: true;
-      profileImage: true;
-      isVerified: true;
-      createdAt: true;
-      _count: {
-        select: {
-          orders: true;
-          wishlistItems: true;
-          reviews: true;
-        };
-      };
-    };
-  }>)
-  | ({
-    role: "admin";
-    id: string;
-  } & Prisma.AdminGetPayload<{
-    select: {
-      adminId: true;
-      firstName: true;
-      lastName: true;
-      phoneNumber: true;
-      email: true;
-      profileImage: true;
-      createdAt: true;
-    };
-  }>);
+  | ({ role: "user"; id: string } & UserProfile)
+  | ({ role: "admin"; id: string } & AdminProfile);
 
 export type EditUserData = Omit<
   UserData,
   "role" | "_count" | "createdAt" | "isVerified" | "email"
 >;
 
-// export interface ProductCardDTO {
-//   id: number;
-//   name: string;
-//   slug: string;
-//   storeSlug: string;
-//   // isLiked: boolean;
-//   variant: {
-//     id?: number;
-//     optionHash?: string;
-//     price: number | null;
-//     originalPrice: number | null;
-//     image: string | null;
-//     options?: {
-//       key: string;
-//       value: string;
-//     }[];
-//   };
-// }
-
-// export interface ProductCardDTOWithLike extends ProductCardDTO {
-//   isLiked?: boolean;
-// }
-
-// notifications types
 
 export interface Notification {
   createdAt: Date;

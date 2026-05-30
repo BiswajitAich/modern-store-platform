@@ -126,14 +126,14 @@ const Header: React.FC = () => {
                 { href: "/contact", label: "Contact" },
               ] as const
             ).map(({ href, label }) => (
-              <Link
+              <a
                 key={href}
                 href={href}
                 className={`${styles.navLink} ${isActive(href) ? styles.navLinkActive : ""}`}
                 onClick={closeMenu}
               >
                 {label}
-              </Link>
+              </a>
             ))}
           </div>
 

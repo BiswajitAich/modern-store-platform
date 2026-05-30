@@ -83,7 +83,7 @@ export const fetchPageProductDataBySlug = async (
     return product ? serializeProduct(product) : null;
   } catch (e) {
     console.error(e);
-    return null;
+    throw e;
   }
 };
 

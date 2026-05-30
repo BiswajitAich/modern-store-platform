@@ -7,9 +7,19 @@ export default withAuth(
     const token = req.nextauth.token;
     // auth logic
     if (pathname.startsWith("/auth")) {
-      if (token) {
+      const allowedWhenLoggedIn = [
+        "/auth/forgotPassword",
+      ];
+
+      if (
+        token &&
+        !allowedWhenLoggedIn.some((route) =>
+          pathname.startsWith(route)
+        )
+      ) {
         return NextResponse.redirect(new URL("/", req.url));
       }
+
       return NextResponse.next();
     }
     // admin logic

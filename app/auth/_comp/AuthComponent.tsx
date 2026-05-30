@@ -11,6 +11,7 @@ const SignUp = dynamic(() => import("./SignUp"), {
 });
 import styles from "../../styles/auth/auth.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 const AuthComponent = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -53,6 +54,7 @@ const AuthComponent = () => {
           </button>
         </div>
       )}
+      <Link href={'/auth/forgotPassword'} className={styles.authToggle}>forgot password</Link>
     </main>
   );
 };

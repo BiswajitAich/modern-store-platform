@@ -11,33 +11,36 @@ import DescRating from "../../desc_rating/DescRating";
 import CarouselNavBtn from "../carouselNavBtn/CarouselNavBtn";
 import CarouselDotBtn from "../carouselDotBtns/CarouselDotBtn";
 import { ProductPageSerialized } from "@/app/_lib/db/types/product.types";
+
 interface BuyNowBtnProps {
   selectedVariant:
-  | {
-    id: number;
-    productId: number;
-    price: number | null;
-    originalPrice: number | null;
-    stock: number;
-    sku: string | null;
-    optionHash: string;
-    updatedAt: string;
-    images: string[];
-    options: {
-      id: number;
-      key: string;
-      value: string;
-    }[];
-  }
-  | null
-  | undefined;
+    | {
+        id: number;
+        productId: number;
+        price: number | null;
+        originalPrice: number | null;
+        stock: number;
+        sku: string | null;
+        optionHash: string;
+        updatedAt: string;
+        images: string[];
+        options: {
+          id: number;
+          key: string;
+          value: string;
+        }[];
+      }
+    | null
+    | undefined;
   quantity: number;
   isAuthenticated?: boolean;
   productData: ProductPageSerialized;
 }
+
 interface UserConfirmationProps extends BuyNowBtnProps {
   setIsConfirming: (value: boolean) => void;
 }
+
 const BuyNowBtn = ({
   selectedVariant,
   quantity,
@@ -45,13 +48,15 @@ const BuyNowBtn = ({
   productData,
 }: BuyNowBtnProps) => {
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
+
   useEffect(() => {
-    if (isAuthenticated && isConfirming) {
-      document.body.style.overflow = "hidden";
-    } else {
+    document.body.style.overflow =
+      isAuthenticated && isConfirming ? "hidden" : "auto";
+    return () => {
       document.body.style.overflow = "auto";
-    }
+    };
   }, [isConfirming, isAuthenticated]);
+
   return (
     <>
       <button
@@ -77,6 +82,7 @@ const BuyNowBtn = ({
         </svg>
         Buy Now
       </button>
+
       {isConfirming && (
         <UserConfirmation
           selectedVariant={selectedVariant}
@@ -91,6 +97,8 @@ const BuyNowBtn = ({
 
 export default BuyNowBtn;
 
+// ─── User Confirmation Modal ──────────────────────────────────────────────────
+
 const UserConfirmation = ({
   selectedVariant,
   quantity,
@@ -99,20 +107,24 @@ const UserConfirmation = ({
 }: UserConfirmationProps) => {
   const router = useRouter();
   const [buying, setBuying] = useState(false);
+
+  // Close on Escape key
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !buying) setIsConfirming(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [buying, setIsConfirming]);
+
   const handleBuyNow = async () => {
+    if (!selectedVariant) return;
     setBuying(true);
-    console.log("Buy now clicked:", { variant: selectedVariant, quantity });
-    // return;
-    if (!selectedVariant) {
-      setBuying(false);
-      return;
-    }
+
     const newTab = window.open("", "_blank");
+
     const [error, response] = await tryIt(async () => {
       const productPath = window.location.origin + window.location.pathname;
-      if (!productPath) {
-        throw new Error("Product path not found");
-      }
       const res = await fetch("/api/orderViaWA", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,94 +134,103 @@ const UserConfirmation = ({
           productPath,
         }),
       });
-      if (!res.ok) {
-        throw new Error(res.statusText);
-      }
+      if (!res.ok) throw new Error(res.statusText);
       return res.json();
     });
+
     if (error instanceof Error) {
       toast.error(error.message || "Failed to create WhatsApp order");
-      if (error?.message === "UNAUTHORIZED") {
-        router.push("/auth");
-      }
+      if (error.message === "UNAUTHORIZED") router.push("/auth");
       setBuying(false);
       return;
     }
-    toast.success("Opening WhatsApp in new tab...");
+
+    toast.success("Opening WhatsApp...");
     const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
     const url = isMobile ? response.whatsappAppUrl : response.whatsappWebUrl;
-    if (newTab) {
-      newTab.location.href = url;
-    }
+    if (newTab) newTab.location.href = url;
     setBuying(false);
   };
 
+  const isColorKey = (key: string) =>
+    key.toLowerCase() === "color" || key.toLowerCase() === "colour";
+
   return (
-    <div className={styles.confirmationOverlay}>
-      <div className={styles.confirmationBox}>
-        <h2 className="heading">Confirm Your Order</h2>
-        <div className="underline" />
-        <EmblaCarousel slides={selectedVariant?.images || []} />
-        <div>
-          <span
-            style={{
-              fontSize: "var(--font-size-lg)",
-              fontWeight: "bold",
-            }}
+    // Clicking the backdrop closes the modal
+    <div
+      className={styles.confirmationOverlay}
+      onClick={() => !buying && setIsConfirming(false)}
+    >
+      {/* Stop clicks inside the box from closing the modal */}
+      <div
+        className={styles.confirmationBox}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Confirm your order"
+      >
+        {/* Header */}
+        <div className={styles.confirmationHeader}>
+          <h2 className="heading">Confirm Your Order</h2>
+          <button
+            className={styles.closeBtn}
+            onClick={() => setIsConfirming(false)}
+            disabled={buying}
+            aria-label="Close"
           >
-            Variant:
-          </span>
-          <br />
-          {selectedVariant?.options.map((opt) =>
-            opt.key.toLowerCase() === "color" ||
-              opt.key.toLowerCase() === "colour" ? (
-              <div key={opt.id}>
-                {opt.key}:
-                <span
-                  style={{
-                    backgroundColor: opt.value,
-                    padding: "2px var(--spacing-sm)",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--border-color)",
-                    marginLeft: "var(--spacing-sm)",
-                  }}
-                  title={opt.value}
-                >
-                  {opt.value}
-                </span>
-                {"("}
-                {opt.value}
-                {")"}
-              </div>
-            ) : (
-              <div key={opt.id}>
-                {opt.key}: {opt.value}
-              </div>
-            ),
-          )}
+            ✕
+          </button>
         </div>
-        <p>Quantity: {quantity}</p>
+        <div className="underline" />
+
+        {/* Carousel */}
+        {selectedVariant?.images && selectedVariant.images.length > 0 && (
+          <EmblaCarousel slides={selectedVariant.images} />
+        )}
+
+        {/* Variant options */}
+        <div className={styles.variantInfo}>
+          <span className={styles.variantLabel}>Variant:</span>
+          <div className={styles.variantOptions}>
+            {selectedVariant?.options.map((opt) =>
+              isColorKey(opt.key) ? (
+                <div key={opt.id} className={styles.optionRow}>
+                  <span className={styles.optionKey}>{opt.key}:</span>
+                  <span
+                    className={styles.colorSwatch}
+                    style={{ backgroundColor: opt.value }}
+                    title={opt.value}
+                  />
+                  <span className={styles.optionValue}>{opt.value}</span>
+                </div>
+              ) : (
+                <div key={opt.id} className={styles.optionRow}>
+                  <span className={styles.optionKey}>{opt.key}:</span>
+                  <span className={styles.optionValue}>{opt.value}</span>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+
+        <p className={styles.quantityText}>
+          Quantity: <strong>{quantity}</strong>
+        </p>
+
         {selectedVariant?.price && selectedVariant?.originalPrice && (
           <Price
-            price={selectedVariant?.price}
-            originalPrice={selectedVariant?.originalPrice}
+            price={selectedVariant.price}
+            originalPrice={selectedVariant.originalPrice}
           />
         )}
+
         <DescRating productData={productData} />
-        <div
-          style={{
-            display: "flex",
-            gap: "2%",
-            flexWrap: "wrap",
-            marginTop: "var(--spacing-sm)",
-          }}
-        >
+
+        {/* Action buttons */}
+        <div className={styles.actionRow}>
           <button
-            className="button "
-            onClick={() => {
-              toast.message("Feature will be added soon!");
-              // router.push("/cart")
-            }}
+            className="button"
+            onClick={() => toast.message("Feature will be added soon!")}
             disabled={buying}
           >
             View Cart
@@ -223,11 +244,11 @@ const UserConfirmation = ({
           </button>
           <button
             className="button buttonPrimary"
-            onClick={() => handleBuyNow()}
+            onClick={handleBuyNow}
             disabled={buying}
-            aria-label="buy button"
+            aria-label="Confirm and open WhatsApp"
           >
-            {buying ? "please wait..." : "Continute to WhatsApp"}
+            {buying ? "Please wait…" : "Continue to WhatsApp"}
           </button>
         </div>
       </div>
@@ -235,25 +256,20 @@ const UserConfirmation = ({
   );
 };
 
+// ─── Embla Carousel ───────────────────────────────────────────────────────────
+
 const EmblaCarousel = ({ slides }: { slides: string[] }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
-
-  const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
-
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
   const scrollTo = useCallback(
-    (index: number) => {
-      if (emblaApi) emblaApi.scrollTo(index);
-    },
+    (index: number) => emblaApi?.scrollTo(index),
     [emblaApi],
   );
+
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
@@ -265,7 +281,6 @@ const EmblaCarousel = ({ slides }: { slides: string[] }) => {
     setScrollSnaps(emblaApi.scrollSnapList());
     emblaApi.on("select", onSelect);
     emblaApi.on("reInit", onSelect);
-
     return () => {
       emblaApi.off("select", onSelect);
       emblaApi.off("reInit", onSelect);
@@ -273,55 +288,39 @@ const EmblaCarousel = ({ slides }: { slides: string[] }) => {
   }, [emblaApi, onSelect]);
 
   return (
-    <div className="embla">
-      <div
-        style={{
-          maxHeight: "200px",
-          position: "relative",
-        }}
-        ref={emblaRef}
-      >
-        <div className="emblaContainer">
+    <div className={styles.emblaRoot}>
+      <div className={styles.emblaViewport} ref={emblaRef}>
+        <div className={styles.emblaContainer}>
           {slides.map((slide, index) => (
-            <div
-              className="emblaSlide"
-              style={{
-                maxHeight: "200px",
-                aspectRatio: "1",
-              }}
-              key={index}
-            >
-              <Image
-                src={`/api/image?imageId=${encodeURIComponent(slide)}`}
-                alt="Product Image"
-                width={100}
-                height={100}
-              />
+            <div key={index} className={styles.emblaSlide}>
+              <div className={styles.emblaSlideInner}>
+                <Image
+                  src={`/api/image?imageId=${encodeURIComponent(slide)}`}
+                  alt={`Product image ${index + 1}`}
+                  fill
+                  sizes="(max-width: 800px) 100vw, 800px"
+                  className={styles.emblaImage}
+                  priority={index === 0}
+                />
+              </div>
             </div>
           ))}
         </div>
-        {/* Navigation Buttons */}
+
         {slides.length > 1 && (
           <CarouselNavBtn onPrev={scrollPrev} onNext={scrollNext} />
         )}
       </div>
 
-      {/* Dot Indicators */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          flexWrap: "wrap",
-          gap: "var(--spacing-xs)",
-          marginTop: "var(--spacing-xs)",
-        }}
-      >
-        <CarouselDotBtn
-          scrollSnaps={scrollSnaps}
-          scrollTo={scrollTo}
-          selectedIndex={selectedIndex}
-        />
-      </div>
+      {slides.length > 1 && (
+        <div className={styles.emblaDots}>
+          <CarouselDotBtn
+            scrollSnaps={scrollSnaps}
+            scrollTo={scrollTo}
+            selectedIndex={selectedIndex}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,4 @@
 import styles from "./PUI.module.css";
-import Link from "next/link";
-import Image from "next/image";
 import { getAuthenticatedUser, isAuthenticatedUser } from "@/app/_lib/customForServerSide";
 import VariantSection from "./varient/VariantSection";
 import dynamic from "next/dynamic";
@@ -10,11 +8,10 @@ import { getWishlistItems } from "@/app/_lib/prismaFun";
 import KeyFeatures from "@/app/_components/keyFeatures/KeyFeatures";
 import { generateVariantHash, normalizeSearchParams } from "../utility";
 import { ProductPageSerialized } from "@/app/_lib/db/types/product.types";
+import ImageGallary from "./ImageGallary";
 
 const PUIClient = dynamic(() => import("./PUIClient"));
-const WishListBtn = dynamic(
-  () => import("@/app/_components/btns/wishListBtn/WishListBtn"),
-);
+
 const Reviews = dynamic(() => import("@/app/_components/reviews/Reviews"));
 
 const PUIServer = async ({
@@ -66,7 +63,7 @@ const PUIServer = async ({
     typeof searchParams.image === "string" ? parseInt(searchParams.image) : 0;
   const selectedImage = images[imageIndex] ?? images[0];
 
-  const wishlistItems = (await await isAuthenticatedUser())
+  const wishlistItems = (await isAuthenticatedUser())
     ? await getWishlistItems(
       Number(productData.id),
       (await getAuthenticatedUser()).id,
@@ -101,54 +98,16 @@ const PUIServer = async ({
     <main className={styles.container}>
       <div className={styles.productLayout}>
         {/* Image Gallery Section */}
-        <div className={styles.imageSection}>
-          <div className={styles.thumbnailList}>
-            {images.map((img, i) => (
-              <Link
-                key={i}
-                href={`?${new URLSearchParams({
-                  ...flatSearchParams,
-                  image: i.toString(),
-                })}`}
-                scroll={false}
-                prefetch={false}
-                className={`${styles.thumbnail} ${imageIndex === i ? styles.thumbnailActive : ""
-                  }`}
-                style={{ pointerEvents: imageIndex === i ? "none" : "auto" }}
-              >
-                <Image
-                  src={`/api/image?imageId=${encodeURIComponent(img)}`}
-                  alt={`${productData.name} - ${i + 1}`}
-                  fill
-                  sizes="80px"
-                  className={styles.thumbnailImage}
-                />
-              </Link>
-            ))}
-          </div>
-
-          <div className={styles.mainImageWrapper}>
-            <div className={styles.mainImage}>
-              <Image
-                src={`/api/image?imageId=${encodeURIComponent(selectedImage)}`}
-                alt={productData.name}
-                fill
-                sizes="(max-width: 500px) 100vw, 50vw"
-                priority
-                fetchPriority="high"
-                placeholder="blur"
-                blurDataURL="/blur.webp"
-                className={styles.productImage}
-                quality={75}
-              />
-              <WishListBtn
-                variantId={selectedVariant ? Number(selectedVariant.id) : null}
-                productId={Number(productData.id)}
-                isLiked={isLiked}
-              />
-            </div>
-          </div>
-        </div>
+        <ImageGallary 
+        images={images} 
+        flatSearchParams={flatSearchParams}
+        isLiked={isLiked}
+        title={productData.name}
+        imageIndex={imageIndex}
+        selectedImage={selectedImage}
+        selectedVariant={selectedVariant}
+        productId={productData.id}
+        />
 
         {/* Product Details Section */}
         <div className={styles.detailsSection}>
