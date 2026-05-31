@@ -50,6 +50,7 @@
   visibility: visible;
   transform: translateY(0);
 }
+
 .dropdownContainerHover .dropdown {
   opacity: 1;
   visibility: visible;
@@ -79,4 +80,10 @@
   margin: var(--spacing-xs) 0;
   border: none;
   border-top: 1px solid var(--border-color);
+}
+
+@media screen and (max-width: 768px) {
+  .dropdownContainer {
+    display: none;
+  }
 }

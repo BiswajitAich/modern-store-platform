@@ -1,7 +1,6 @@
 import { getAuthenticatedAdmin } from "@/app/_lib/customForServerSide";
 import prisma from "@/lib/prisma";
 import NotificationsList from "./_comp/NotificationsList";
-import { tryIt } from "@/app/_lib/custom";
 import { cacheLife, cacheTag } from "next/cache";
 
 const getNotifications = async (
@@ -13,26 +12,19 @@ const getNotifications = async (
   cacheLife("seconds");
   cacheTag(`get-notification-${adminId}`);
 
-  const [err, res] = await tryIt(async () => {
-    return await prisma.adminNotification.findMany({
-      where: {
-        adminId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: limit + 1,
-      ...(cursor && {
-        cursor: { id: Number(cursor) },
-        skip: 1,
-      }),
-    });
+  const res = await prisma.adminNotification.findMany({
+    where: {
+      adminId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit + 1,
+    ...(cursor && {
+      cursor: { id: Number(cursor) },
+      skip: 1,
+    }),
   });
-
-  if (err || !res) {
-    console.log(err);
-    return { notifications: [], nextCursor: null };
-  }
 
   let nextCursor = null;
 

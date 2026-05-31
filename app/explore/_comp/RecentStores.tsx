@@ -5,43 +5,52 @@ import { Suspense } from "react";
 import styles from "../Explore.module.css";
 import CardSkeleton from "@/app/_components/loaders/CardSkeleton";
 import SectionHeading from "@/app/_components/common/SectionHeading";
-const getRecentStores = async () => {
+
+interface Store {
+    id: string;
+    storeSlug: string;
+    profileImage: string | null;
+    productCount: number;
+    categoryCount: number;
+}
+
+const getRecentStores = async (): Promise<Store[]> => {
     "use cache";
     cacheLife("hours");
     cacheTag("exploreStores")
-    try {
-        const stores = await prisma.admin.findMany({
-            where: {
-                isActive: true,
-            },
-            select: {
-                adminId: true,
-                storeSlug: true,
-                profileImage: true,
+    // try {
+    const stores = await prisma.admin.findMany({
+        where: {
+            isActive: true,
+        },
+        select: {
+            adminId: true,
+            storeSlug: true,
+            profileImage: true,
 
-                _count: {
-                    select: {
-                        products: true,
-                        categories: true,
-                    },
+            _count: {
+                select: {
+                    products: true,
+                    categories: true,
                 },
             },
-            orderBy: {
-                updatedAt: "desc",
-            },
-            take: 12,
-        });
-        return stores.map(s => ({
-            id: s.adminId,
-            storeSlug: s.storeSlug,
-            profileImage: s.profileImage,
-            productCount: s._count.products,
-            categoryCount: s._count.categories,
-        }));
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
+        },
+        orderBy: {
+            updatedAt: "desc",
+        },
+        take: 12,
+    });
+    return stores.map((s: { adminId: any; storeSlug: any; profileImage: any; _count: { products: any; categories: any; }; }) => ({
+        id: s.adminId,
+        storeSlug: s.storeSlug,
+        profileImage: s.profileImage,
+        productCount: s._count.products,
+        categoryCount: s._count.categories,
+    }));
+    // } catch (error) {
+    //     console.error(error);
+    //     return [];
+    // }
 }
 const RecentStores = async () => {
     const stores = await getRecentStores();

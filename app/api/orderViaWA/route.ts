@@ -3,6 +3,7 @@ import {
   getAuthenticatedUser,
   isAuthenticatedUser,
 } from "@/app/_lib/customForServerSide";
+import { revalidateTag } from "next/cache";
 
 export async function POST(request: Request) {
   const { variantId, quantity, productPath } = await request.json();
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     await prisma.adminNotification.create({
       data: {
         adminId: variant.product.adminId,
-        type: "NEW_ORDER",
+        type: "ORDER_INITIATED",
         entityId: order.id,
         message: `New order received for ${variant.product.name} (Variant ID: ${variant.id}).`,
       },
@@ -78,7 +79,7 @@ ${productPath}
 
 📃 *Order Ref:*  ${orderRef}`,
   );
-
+  revalidateTag(`admin-order-page-${variant.product.adminId}`, "max")
   return Response.json(
     {
       whatsappWebUrl: `whatsapp://send?phone=${variant.product.admin.phoneNumber}&text=${whatsappMessage}`,

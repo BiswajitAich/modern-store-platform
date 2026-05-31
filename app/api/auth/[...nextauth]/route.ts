@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import NextAuth, { type Session, type NextAuthOptions } from "next-auth";
 import { compare } from "bcrypt";
 import prisma from "@/lib/prisma";
+import { JWT } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -108,6 +109,7 @@ export const authOptions: NextAuthOptions = {
           id: user.adminId,
           last_name: user.lastName ?? "",
           role: "admin",
+          storeSlug: user.storeSlug
         };
       },
     }),
@@ -120,10 +122,10 @@ export const authOptions: NextAuthOptions = {
 
       // CREDENTIALS LOGIN → user exists here
       if (user) {
-        const u = user as Session["user"];
+        const u = user as JWT;
         token.id = u.id;
         token.role = u.role;
-        // token.last_name = u.last_name;
+        token.storeSlug = u.storeSlug;
       }
 
       // GOOGLE LOGIN → logic below

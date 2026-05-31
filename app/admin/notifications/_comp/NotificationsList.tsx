@@ -1,12 +1,27 @@
 "use client";
-
+import styles from "./notification.module.css";
+import SectionHeading from "@/app/_components/common/SectionHeading";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-
+type NotificationType =
+  | "ORDER_INITIATED"
+  | "ORDER_CANCELLED"
+  | "ORDER_CONFIRMED"
+  | "REVIEW_CREATED";
+interface NotificationList {
+  id: number;
+  type: NotificationType;
+  message: string;
+  createdAt: Date;
+  adminId: string;
+  entityId: number | null;
+  isRead: boolean;
+}
 const NotificationsList = ({
   notifications,
   nextCursor,
 }: {
-  notifications: any;
+  notifications: NotificationList[];
   nextCursor: number | null | undefined;
 }) => {
   console.log(notifications);
@@ -21,45 +36,52 @@ const NotificationsList = ({
     router.push(`?${newParams.toString()}`);
   };
 
+  const getNotificationLink = (notification: NotificationList) => {
+    if (!notification.entityId) {
+      return "/admin/notifications";
+    }
+
+    switch (notification.type) {
+      case "ORDER_INITIATED":
+      case "ORDER_CANCELLED":
+      case "ORDER_CONFIRMED":
+        return `/admin/orders/${notification.entityId}`;
+
+      case "REVIEW_CREATED":
+        return `/admin/reviews/${notification.entityId}`;
+
+      default:
+        return "/admin/notifications";
+    }
+  };
+
   return (
-    <div style={{ minHeight: '50dvh', maxWidth: 720, margin: '0 auto', padding: 16, fontFamily: 'Inter, system-ui, sans-serif' }}>
-      <h2 style={{ margin: '0 0 12px 0' }}>Notifications</h2>
+    <div className={styles.container}>
+      <SectionHeading title="Notification" subtitle="all admin notifications" />
       {notifications.length === 0 ? (
         <div style={{ padding: 16, borderRadius: 8, background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>No new notifications</div>
       ) : (
-        <div style={{ display: 'grid', gap: 10 }}>
-          {notifications.map((notification: any) => (
-            <div
+        <div className={styles.notificationWrapper}>
+          {notifications.map((notification: NotificationList) => (
+            <Link
+              href={getNotificationLink(notification)}
               key={notification.id}
-              style={{
-                padding: 12,
-                borderRadius: 8,
-                background: 'var(--bg-tertiary)',
-                boxShadow: '0 1px 3px rgba(16,24,40,0.05)',
-                border: '1px solid rgba(16,24,40,0.04)'
-              }}
+              className={styles.notificationCard}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p style={{ margin: 0, fontWeight: 600 }}>{notification.message}</p>
-                <span style={{ fontSize: 12, color: '#6b7280' }}>{new Date(notification.createdAt).toLocaleString()}</span>
+              <div className={styles.notificationCardDiv}>
+                <p className={styles.notificationCardP}>{notification.message}</p>
+                <span className={styles.notificationCardSpan}>{new Date(notification.createdAt).toLocaleString()}</span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
 
       {nextCursor && (
-        <div style={{ marginTop: 12, textAlign: 'center' }}>
+        <div className={styles.loadMoreBtnContainer}>
           <button
             onClick={loadMore}
-            style={{
-              background: '#111827',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 14px',
-              borderRadius: 6,
-              cursor: 'pointer'
-            }}
+            className={styles.loadMoreBtn}
           >
             Load more
           </button>

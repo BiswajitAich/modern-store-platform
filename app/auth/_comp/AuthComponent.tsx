@@ -54,7 +54,9 @@ const AuthComponent = () => {
           </button>
         </div>
       )}
-      <Link href={'/auth/forgotPassword'} className={styles.authToggle}>forgot password</Link>
+      {isAdmin !== 'true' &&
+        <Link href={'/auth/forgotPassword'} className={styles.authToggle}>forgot password</Link>
+      }
     </main>
   );
 };

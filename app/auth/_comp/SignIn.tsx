@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import styles from "../../styles/auth/sign__.module.css";
 // import ErrorMsg from "./ErrorMsg";
 import { signIn } from "next-auth/react";
-import { getErrorMessage } from "../page";
+import { getErrorMessage } from "../errorMessages";
 import { toast } from "sonner";
 
 const SignIn = ({ isAdmin }: { isAdmin: string }) => {

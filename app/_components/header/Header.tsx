@@ -16,7 +16,7 @@ const ViewNotificationCards = dynamic(
 const Header: React.FC = () => {
   const navRef = useRef<HTMLDivElement | null>(null);
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
-  const lastScrollYRef = useRef(0); 
+  const lastScrollYRef = useRef(0);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -93,7 +93,7 @@ const Header: React.FC = () => {
       <div className={styles.headerContainer}>
         {/* Logo */}
         <div className={styles.logoSection}>
-          <Link href="/" className={styles.logo}>
+          <Link href="/explore" className={styles.logo}>
             <Image
               src="/commyfy.png"
               className={styles.logoIcon}

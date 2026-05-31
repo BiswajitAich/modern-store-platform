@@ -112,3 +112,12 @@ export interface FetchNotificationsResponse {
   hasNew: boolean;
   notification: Notification[] | null;
 }
+
+export type WhatsAppOrderStatus =
+    | "INITIATED"
+    | "RECEIVED"
+    | "PENDING"
+    | "CONFIRMED"
+    | "SHIPPED"
+    | "DELIVERED"
+    | "CANCELLED";
