@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../app/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [vector]
 }
 
 model User {
@@ -32,22 +34,23 @@ model User {
 }
 
 model Admin {
-  adminId        String              @id @unique @default(uuid())
-  storeSlug      String              @unique @map("store_slug")
-  email          String              @unique
-  phoneNumber    String?             @unique @map("phone_number")
-  firstName      String?             @map("first_name")
-  lastName       String?             @map("last_name")
-  passwordHash   String              @map("password_hash")
-  createdAt      DateTime            @default(now()) @map("created_at")
-  updatedAt      DateTime            @updatedAt @map("updated_at")
-  profileImage   String?             @map("profile_image")
-  isActive       Boolean             @default(true)
-  notifications  AdminNotification[]
-  categories     Category[]
-  heroBanners    HeroBanner[]
-  products       Product[]
-  whatsAppOrders WhatsAppOrder[]
+  adminId         String              @id @unique @default(uuid())
+  storeSlug       String              @unique @map("store_slug")
+  email           String              @unique
+  phoneNumber     String?             @unique @map("phone_number")
+  firstName       String?             @map("first_name")
+  lastName        String?             @map("last_name")
+  passwordHash    String              @map("password_hash")
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  profileImage    String?             @map("profile_image")
+  isActive        Boolean             @default(true)
+  notifications   AdminNotification[]
+  categories      Category[]
+  heroBanners     HeroBanner[]
+  products        Product[]
+  SearchDocuments SearchDocument[]
+  whatsAppOrders  WhatsAppOrder[]
 
   @@index([email])
   @@index([storeSlug])
@@ -81,28 +84,29 @@ model Category {
 }
 
 model Product {
-  id             Int                @id @default(autoincrement())
-  adminId        String             @map("admin_id")
-  name           String
-  slug           String
-  description    String?
-  categoryId     Int                @map("category_id")
-  brand          String?
-  isFeatured     Boolean            @default(false) @map("is_featured")
-  isActive       Boolean            @default(true) @map("is_active")
-  whatsappClicks Int                @default(0) @map("whatsapp_clicks")
-  sortOrder      Int                @default(0) @map("sort_order")
-  createdAt      DateTime           @default(now()) @map("created_at")
-  updatedAt      DateTime           @updatedAt @map("updated_at")
-  cartItems      CartItem[]
-  heroBanners    HeroBanner[]
-  attributes     ProductAttribute[]
-  variants       ProductVariant[]
-  admin          Admin              @relation(fields: [adminId], references: [adminId], onDelete: Cascade)
-  category       Category           @relation(fields: [categoryId, adminId], references: [id, adminId])
-  reviews        Review[]
-  orders         WhatsAppOrder[]
-  wishlistItems  WishlistItem[]
+  id               Int                @id @default(autoincrement())
+  adminId          String             @map("admin_id")
+  name             String
+  slug             String
+  description      String?
+  categoryId       Int                @map("category_id")
+  brand            String?
+  isFeatured       Boolean            @default(false) @map("is_featured")
+  isActive         Boolean            @default(true) @map("is_active")
+  whatsappClicks   Int                @default(0) @map("whatsapp_clicks")
+  sortOrder        Int                @default(0) @map("sort_order")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  cartItems        CartItem[]
+  heroBanners      HeroBanner[]
+  attributes       ProductAttribute[]
+  variants         ProductVariant[]
+  admin            Admin              @relation(fields: [adminId], references: [adminId], onDelete: Cascade)
+  category         Category           @relation(fields: [categoryId, adminId], references: [id, adminId])
+  reviews          Review[]
+  // search_documents SearchDocument[]
+  orders           WhatsAppOrder[]
+  wishlistItems    WishlistItem[]
 
   @@unique([slug, adminId])
   @@index([slug, adminId])
@@ -175,6 +179,27 @@ model VariantImage {
   variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
   @@index([variantId])
+}
+
+model SearchDocument {
+  id             Int                   @id @default(autoincrement())
+  entityId       Int                   @map("entity_id")
+  entityType     SearchDocumentType    @map("entity_type")
+  adminId        String                @map("admin_id")
+  searchableText String                @map("searchable_text")
+  embedding      Unsupported("vector")
+  embeddingModel String                @map("embedding_model")
+  contentHash    String                @map("content_hash")
+  indexedAt      DateTime              @map("indexed_at")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
+  // productId      Int?                  @map("product_id")
+  admin          Admin                 @relation(fields: [adminId], references: [adminId], onDelete: Cascade)
+  // products       Product?              @relation(fields: [productId], references: [id])
+
+  @@unique([entityType, entityId])
+  @@index([adminId])
+  @@map("search_documents")
 }
 
 model HeroBanner {
@@ -307,4 +332,9 @@ enum NotificationType {
   ORDER_CANCELLED
   ORDER_CONFIRMED
   REVIEW_CREATED
+}
+
+enum SearchDocumentType {
+  PRODUCT
+  CATEGORY
 }

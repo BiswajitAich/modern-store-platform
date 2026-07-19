@@ -3,6 +3,7 @@ import { tryIt } from "@/app/_lib/custom";
 import { ErrorFormState } from "@/app/_lib/types";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import prisma from "@/lib/prisma";
+import { queueProductReindex } from "@/lib/search/reindexQueue";
 import { getServerSession } from "next-auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 
@@ -11,6 +12,7 @@ export const updateProductAttribute = async (
     formData: FormData,
 ): Promise<ErrorFormState> => {
     const session = await getServerSession(authOptions);
+    const productId = Number(formData.get("productId"));
 
     const [error] = await tryIt(async () => {
         if (!session?.user) {
@@ -18,7 +20,6 @@ export const updateProductAttribute = async (
         }
 
         const attributeId = Number(formData.get("attributeId"));
-        const productId = Number(formData.get("productId"));
 
         const key = formData
             .get("key")
@@ -104,6 +105,11 @@ export const updateProductAttribute = async (
         );
         // revalidatePath("/")
     });
+
+    if (productId) {
+        queueProductReindex(productId);
+        revalidatePath(`/admin/products/${productId}`);
+    }
 
     return {
         error: error ? (error as Error).message : undefined,

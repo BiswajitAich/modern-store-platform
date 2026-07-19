@@ -28,29 +28,24 @@ export const getRecentHero = async () => {
                     },
                 ],
             },
-            orderBy: [
-                { sortOrder: "asc" },
-                { id: "asc" },
-            ],
+            orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
             ...heroQuery,
             take: 10,
         });
 
         return heroRaw as HeroDTO[];
-
     } catch (err) {
-        console.error("Error fetching recent hero:", err);
-        return [];
-        // throw new Error((err as Error).message);
+        // console.error("Error fetching recent hero:", err);
+        // return [];
+        throw new Error("Unable to load data - banners!");
     }
 };
 const RecentHero = async () => {
-
     return (
-        <Suspense fallback={<HeroSkeleton />} >
+        <Suspense fallback={<HeroSkeleton />}>
             <Herocarousel data={await getRecentHero()} />
         </Suspense>
-    )
-}
+    );
+};
 
 export default RecentHero;

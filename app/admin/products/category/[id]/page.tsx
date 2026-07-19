@@ -3,6 +3,8 @@ import AvailableProducts from "../../_comp/AvailableProducts";
 import { redirect } from "next/navigation";
 import { getAuthenticatedAdmin } from "@/app/_lib/customForServerSide";
 import { cacheTag, cacheLife } from "next/cache";
+import { ErrorBoundary } from "@/app/_components/ErrorBoundary";
+import SectionError from "@/app/_components/loaders/SectionError";
 
 const getAvailableProductsForCategory = async (
   categoryId: string,
@@ -39,8 +41,9 @@ const getAvailableProductsForCategory = async (
       },
     });
   } catch (error) {
-    console.error(error);
-    return [];
+    // console.error(error);
+    // return [];
+    throw new Error("Error fetching - getAvailableProductsForCategory")
   }
 };
 const ViewAvailableProductsPage = async (props: PageProps<'/admin/products/category/[id]'>) => {
@@ -50,7 +53,11 @@ const ViewAvailableProductsPage = async (props: PageProps<'/admin/products/categ
     redirect("/auth");
   }
   const products = await getAvailableProductsForCategory(id, session?.id);
-  return <AvailableProducts products={products} />;
+    return (
+      <ErrorBoundary fallback={<SectionError name="Available Products" />}>
+        <AvailableProducts products={products} />
+    </ErrorBoundary >
+    )
 };
 
 export default ViewAvailableProductsPage;

@@ -2,8 +2,8 @@ import { heroQuery } from "@/app/_lib/db/queries/hero.query";
 import Herocarousel from "./Herocarousel";
 import prisma from "@/lib/prisma";
 import { cacheLife, cacheTag } from "next/cache";
-import { Suspense } from "react";
-import HeroSkeleton from "../loaders/HeroSkeleton";
+// import { Suspense } from "react";
+// import HeroSkeleton from "../loaders/HeroSkeleton";
 const now = new Date();
 
 export const getHeroData = async (storeSlug: string) => {
@@ -35,8 +35,9 @@ export const getHeroData = async (storeSlug: string) => {
       take: 10,
     });
   } catch (err) {
-    console.error("Failed to fetch hero data" + err);
-    return [];
+    // console.error("Failed to fetch hero data" + err);
+    throw new Error("Failed to fetch hero data");
+    // return [];
   }
 }
 
@@ -45,9 +46,9 @@ const Hero = async ({ storeSlug }: { storeSlug: string }) => {
 
   if (!heroData) return null;
   return (
-    <Suspense fallback={<HeroSkeleton />} >
+    // <Suspense fallback={<HeroSkeleton />} >
       <Herocarousel data={heroData} />
-    </Suspense>
+    // </Suspense>
   )
 };
 

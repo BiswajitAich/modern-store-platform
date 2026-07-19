@@ -29,6 +29,7 @@
 /* Logo Section */
 .logoSection {
   flex: 1;
+  max-width: fit-content;
 }
 
 .logo {

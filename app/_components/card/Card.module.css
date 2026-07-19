@@ -1,7 +1,6 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit,
-      minmax(min(100%, 240px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: var(--spacing-md);
   padding: 0 var(--spacing-md);
   align-items: stretch;
@@ -10,23 +9,20 @@
 .card {
   width: 100%;
   height: 100%;
-  background:
-    linear-gradient(145deg,
-      var(--bg-secondary) 0%,
-      var(--bg-tertiary) 55%,
-      var(--bg-secondary) 100%);
+  min-height: 0;
+  background: linear-gradient(145deg, var(--bg-secondary) 0%, var(--bg-tertiary) 55%, var(--bg-secondary) 100%);
   border-radius: var(--radius-xl);
-  overflow: hidden;
+  overflow: clip;
   display: flex;
   flex-direction: column;
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition:
     transform var(--transition-base),
     border-color var(--transition-base),
     box-shadow var(--transition-base),
     background var(--transition-base);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   isolation: isolate;
 }
 
@@ -34,12 +30,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(135deg,
-      rgba(2, 193, 240, 0.10),
-      transparent 30%,
-      transparent 70%,
-      rgba(2, 193, 240, 0.08));
+  background: linear-gradient(135deg, rgba(2, 193, 240, 0.08), transparent 30%, transparent 70%, rgba(2, 193, 240, 0.05));
   opacity: 0;
   transition: opacity var(--transition-base);
   pointer-events: none;
@@ -51,9 +42,8 @@
 
 .card:hover {
   transform: translateY(-4px);
-  border-color: rgba(2, 193, 240, 0.25);
-  box-shadow:
-    0 10px 30px rgba(2, 193, 240, 0.12);
+  border-color: rgba(2, 193, 240, 0.2);
+  box-shadow: 0 8px 28px rgba(2, 193, 240, 0.1);
 }
 
 .card:active {
@@ -88,6 +78,7 @@
   font-size: var(--font-size-xs);
   font-weight: 700;
   z-index: 1;
+  line-height: 1.2;
 }
 
 .content {
@@ -95,7 +86,7 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  flex-grow: 1;
+  flex: 1;
 }
 
 .storeName {
@@ -116,7 +107,6 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2.9em;
 }
 
 .priceContainer {
@@ -157,12 +147,14 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-primary);
-  margin-top: var(--spacing-sm);
+  margin-top: auto;
+  padding-top: var(--spacing-sm);
   transition: all var(--transition-fast);
 }
 
 .shopNow svg {
   transition: transform var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .card:hover .shopNow {
@@ -173,39 +165,135 @@
   transform: translateX(4px);
 }
 
+@media (max-width: 1024px) {
+  .content {
+    padding: var(--spacing-sm);
+    gap: 4px;
+  }
 
-/* ========================= */
+  .productName {
+    font-size: var(--font-size-sm);
+  }
+
+  .price {
+    font-size: var(--font-size-lg);
+  }
+
+  .originalPrice {
+    font-size: var(--font-size-xs);
+  }
+
+  .badge {
+    top: 8px;
+    left: 8px;
+    padding: 3px 8px;
+    font-size: 0.65rem;
+  }
+}
 
 @media (max-width: 768px) {
   .grid {
-    grid-template-columns: repeat(2,
-        minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--spacing-sm);
     padding: 0 var(--spacing-sm);
   }
 
-  .content {
-    padding: 0.85rem;
-  }
-
-  .productName {
-    font-size: 0.95rem;
-  }
-
-  .price {
-    font-size: 1.05rem;
-  }
-}
-
-/* ========================= */
-
-@media (max-width: 420px) {
-  .grid {
-    gap: 0.75rem;
-    padding: 0 0.75rem;
+  .card {
+    border-radius: var(--radius-lg);
   }
 
   .content {
     padding: 0.75rem;
+  }
+
+  .productName {
+    font-size: 0.9rem;
+  }
+
+  .price {
+    font-size: 1rem;
+  }
+
+  .storeName {
+    font-size: 0.6rem;
+  }
+
+  .badge {
+    top: 8px;
+    left: 8px;
+    padding: 3px 7px;
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    padding: 0.625rem;
+    gap: 3px;
+  }
+
+  .productName {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .price {
+    font-size: 0.9rem;
+  }
+
+  .originalPrice {
+    font-size: 0.65rem;
+  }
+
+  .badge {
+    top: 6px;
+    left: 6px;
+    padding: 2px 6px;
+    font-size: 0.55rem;
+  }
+
+  .shopNow {
+    font-size: var(--font-size-xs);
+    gap: 0.25rem;
+    padding-top: 0.5rem;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
+  .card:hover .image {
+    transform: none;
+  }
+
+  .card:active {
+    transform: scale(0.97);
+  }
+
+  .storeName {
+    font-size: 0.55rem;
+    letter-spacing: 0.06em;
+  }
+}
+
+@media (max-width: 360px) {
+  .content {
+    padding: 0.5rem;
+  }
+
+  .productName {
+    font-size: 0.78rem;
+  }
+
+  .price {
+    font-size: 0.85rem;
+  }
+
+  .badge {
+    top: 4px;
+    left: 4px;
+    padding: 2px 5px;
+    font-size: 0.5rem;
   }
 }

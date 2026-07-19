@@ -64,7 +64,7 @@ const CategoryInfiniteGrid = ({ initials, storeSlug, slugs }: CategoryInfiniteGr
     });
 
     return (
-        <div style={{ width: "100%" }}>
+        <section className={styles.section}>
             <SectionHeading
                 title="Categories"
                 subtitle="Browse all available categories"
@@ -104,7 +104,7 @@ const CategoryInfiniteGrid = ({ initials, storeSlug, slugs }: CategoryInfiniteGr
                     )}
                 </>)}
             </div>
-        </div>
+        </section>
     );
 }
 

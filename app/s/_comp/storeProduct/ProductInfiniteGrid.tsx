@@ -62,7 +62,7 @@ const ProductInfiniteGrid = ({ initials, storeSlug, slugs }: ProductInfiniteGrid
     });
 
     return (
-        <div style={{ width: "100%" }}>
+        <section className={styles.section}>
             <SectionHeading
                 title="Products"
             />
@@ -117,7 +117,7 @@ const ProductInfiniteGrid = ({ initials, storeSlug, slugs }: ProductInfiniteGrid
 
                     </div>
                 )}
-        </div>
+        </section>
     );
 }
 

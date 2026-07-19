@@ -44,11 +44,10 @@ export const getRecentCategories = async () => {
         return recentcategoriesRaw
             .map(mapCategoryToCard)
             .filter(Boolean) as CategoryCardDTO[];
-
     } catch (err) {
-        console.error("Error fetching recent products:", err);
-        return [];
-        // throw new Error((err as Error).message);
+        // console.error("Error fetching recent products:", err);
+        // return [];
+        throw new Error("Unable to load data - Recent categories!");
     }
 };
 const RecentCategoriesExplore = async () => {
@@ -56,31 +55,25 @@ const RecentCategoriesExplore = async () => {
     if (!categories.length) return null;
 
     return (
-
         <section className={styles.recentProductsSection}>
             <SectionHeading title="Recent categories" />
             {categories.length === 0 ? (
                 <section style={{ height: "50vh" }}>
                     <h2>No categories Available</h2>
                     <p>
-                        There are currently no categories available. Please check back
-                        later.
+                        There are currently no categories available. Please
+                        check back later.
                     </p>
                 </section>
             ) : (
-                    <div className={styles.grid}>
-                        {categories.map((cat, key) => {
-                            return (
-                                <CatCard
-                                    key={key}
-                                    categories={cat}
-                                />
-                            );
-                        })}
-                    </div>
+                <div className={styles.grid}>
+                    {categories.map((cat, key) => {
+                        return <CatCard key={key} categories={cat} />;
+                    })}
+                </div>
             )}
         </section>
     );
-}
+};
 
 export default RecentCategoriesExplore;

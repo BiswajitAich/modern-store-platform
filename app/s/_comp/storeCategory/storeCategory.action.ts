@@ -68,11 +68,12 @@ export const loadMoreStoreCategoryAction = async ({
             take,
         })
     } catch (error) {
-        console.error(error);
-        return {
-            items: [],
-            nextCursor: null,
-            hasMore: false,
-        };
+        // console.error(error);
+        throw new Error("Error while - load More Store Category Action")
+        // return {
+        //     items: [],
+        //     nextCursor: null,
+        //     hasMore: false,
+        // };
     }
 }

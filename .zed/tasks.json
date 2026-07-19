@@ -1,0 +1,26 @@
+[
+    {
+        "label": "1. Run Frontend",
+        "command": "bun dev",
+        "use_new_terminal": true,
+        "allow_concurrent_runs": true
+    },
+    {
+        "label": "2. Run Docker services.ai",
+        "command": "cd $ZED_WORKTREE_ROOT/services/ai && docker compose up",
+        "use_new_terminal": true,
+        "allow_concurrent_runs": true
+    },
+    {
+        "label": "3. Run scripts/index-products.ts",
+        "command": "bunx tsx scripts/index-products.ts",
+        "use_new_terminal": true,
+        "allow_concurrent_runs": true
+    },
+    {
+        "label": "4. Run seed.ts",
+        "command": "bunx tsx prisma/seed.ts",
+        "use_new_terminal": true,
+        "allow_concurrent_runs": true
+    }
+]

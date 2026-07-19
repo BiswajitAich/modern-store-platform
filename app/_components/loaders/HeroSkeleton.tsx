@@ -2,7 +2,7 @@ const HeroSkeleton = () => {
     return (
         <section
             style={{
-                width: "100%",
+                width: "90vw",
                 height: "clamp(350px, 50vh, 550px)",
                 borderRadius: "24px",
                 overflow: "hidden",

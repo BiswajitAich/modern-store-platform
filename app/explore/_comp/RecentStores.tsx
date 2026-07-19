@@ -17,41 +17,48 @@ interface Store {
 const getRecentStores = async (): Promise<Store[]> => {
     "use cache";
     cacheLife("hours");
-    cacheTag("exploreStores")
-    // try {
-    const stores = await prisma.admin.findMany({
-        where: {
-            isActive: true,
-        },
-        select: {
-            adminId: true,
-            storeSlug: true,
-            profileImage: true,
+    cacheTag("exploreStores");
+    try {
+        const stores = await prisma.admin.findMany({
+            where: {
+                isActive: true,
+            },
+            select: {
+                adminId: true,
+                storeSlug: true,
+                profileImage: true,
 
-            _count: {
-                select: {
-                    products: true,
-                    categories: true,
+                _count: {
+                    select: {
+                        products: true,
+                        categories: true,
+                    },
                 },
             },
-        },
-        orderBy: {
-            updatedAt: "desc",
-        },
-        take: 12,
-    });
-    return stores.map((s: { adminId: any; storeSlug: any; profileImage: any; _count: { products: any; categories: any; }; }) => ({
-        id: s.adminId,
-        storeSlug: s.storeSlug,
-        profileImage: s.profileImage,
-        productCount: s._count.products,
-        categoryCount: s._count.categories,
-    }));
-    // } catch (error) {
-    //     console.error(error);
-    //     return [];
-    // }
-}
+            orderBy: {
+                updatedAt: "desc",
+            },
+            take: 12,
+        });
+        return stores.map(
+            (s: {
+                adminId: any;
+                storeSlug: any;
+                profileImage: any;
+                _count: { products: any; categories: any };
+            }) => ({
+                id: s.adminId,
+                storeSlug: s.storeSlug,
+                profileImage: s.profileImage,
+                productCount: s._count.products,
+                categoryCount: s._count.categories,
+            }),
+        );
+    } catch (error) {
+        throw new Error("Unable to load data - Recent stores!");
+        // return [];
+    }
+};
 const RecentStores = async () => {
     const stores = await getRecentStores();
     if (!stores) return null;
@@ -66,8 +73,7 @@ const RecentStores = async () => {
                 </div>
             </Suspense>
         </section>
-
     );
-}
+};
 
 export default RecentStores;
