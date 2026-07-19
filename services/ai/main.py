@@ -14,6 +14,10 @@ app = FastAPI(
 app.include_router(router, prefix="/v1")
 
 @app.get("/")
+def root():
+    return {"service": "Commyfy AI Service"}
+
+@app.get("/health")
 def health(request: Request):
     return {
         "status": "ok",
