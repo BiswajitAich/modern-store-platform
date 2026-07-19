@@ -16,7 +16,7 @@ interface EmbeddingResponse {
 export const batchEmbed = async (
     texts: string[],
 ): Promise<BatchEmbeddingResponse> => {
-    const res = await fetch("http://127.0.0.1:8000/v1/embeddings/batch", {
+    const res = await fetch(`${process.env.DOCKER_ENDPOINT}embeddings/batch`, {
         method: "POST",
         body: JSON.stringify({ texts }),
         headers: { "Content-Type": "application/json" },
@@ -36,7 +36,7 @@ export const embed = async (text: string): Promise<EmbeddingResponse> => {
     cacheLife("hours");
     cacheTag(text.replace(/ /g, "-"));
 
-    const res = await fetch("http://127.0.0.1:8000/v1/embeddings", {
+    const res = await fetch(`${process.env.DOCKER_ENDPOINT}embeddings`, {
         method: "POST",
         body: JSON.stringify({ text }),
         headers: { "Content-Type": "application/json" },
